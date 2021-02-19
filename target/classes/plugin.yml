@@ -1,0 +1,7 @@
+name: MineTail
+author: Minat0_
+version: 0.0.3-SNAPSHOT
+main: ru.minat0.minetail.MineTail
+softdepend:
+  - "DiscordSRV"
+  - "AuthMe"

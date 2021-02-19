@@ -1,0 +1,6 @@
+ru\minat0\minetail\integrations\AuthMeLoginEvent.class
+ru\minat0\minetail\integrations\DiscordSRVListener.class
+ru\minat0\minetail\utils\ServerUtils.class
+ru\minat0\minetail\managers\ConfigManager.class
+ru\minat0\minetail\utils\ErrorsUtil.class
+ru\minat0\minetail\MineTail.class

@@ -1,0 +1,7 @@
+name: MineTail
+author: Minat0_
+version: ${project.version}
+main: ru.minat0.minetail.MineTail
+softdepend:
+  - "DiscordSRV"
+  - "AuthMe"
