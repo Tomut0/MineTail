@@ -6,7 +6,7 @@
 
     <groupId>org.example</groupId>
     <artifactId>MineTail</artifactId>
-    <version>0.0.3-SNAPSHOT</version>
+    <version>0.0.7-SNAPSHOT</version>
 
     <build>
         <!-- Resources -->
@@ -42,6 +42,11 @@
                             <pattern>org.reflections</pattern>
                             <shadedPattern>ru.minat0.MineTails</shadedPattern>
                         </relocation>
+                        <!--  PhoenixGUI API -->
+                        <relocation>
+                            <pattern>de.themoep</pattern>
+                            <shadedPattern>io.github.apfelcreme.Pipes.libs</shadedPattern>
+                        </relocation>
                     </relocations>
                 </configuration>
                 <executions>
@@ -62,7 +67,7 @@
     </properties>
 
     <repositories>
-        <!-- PurpurAPI -->
+        <!-- Purpur repository -->
         <repository>
             <id>purpur</id>
             <url>https://repo.pl3x.net/</url>
@@ -78,6 +83,11 @@
         <repository>
             <id>Scarsz-Nexus</id>
             <url>https://nexus.scarsz.me/content/groups/public/</url>
+        </repository>
+        <!-- PhoenixGUI repository -->
+        <repository>
+            <id>minebench-repo</id>
+            <url>https://repo.minebench.de/</url>
         </repository>
     </repositories>
 
@@ -119,6 +129,14 @@
             <artifactId>discordsrv</artifactId>
             <version>1.21.1</version>
             <scope>provided</scope>
+        </dependency>
+
+        <!-- PhoenixGUI API -->
+        <dependency>
+            <groupId>de.themoep</groupId>
+            <artifactId>inventorygui</artifactId>
+            <version>1.4.3-SNAPSHOT</version>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
 </project>

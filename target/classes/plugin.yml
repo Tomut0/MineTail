@@ -1,7 +1,21 @@
 name: MineTail
 author: Minat0_
-version: 0.0.3-SNAPSHOT
+version: 0.0.7-SNAPSHOT
+api-version: 1.16
 main: ru.minat0.minetail.MineTail
 softdepend:
   - "DiscordSRV"
   - "AuthMe"
+commands:
+  minetail:
+    description: Список главных комманд сервера.
+    aliases:
+      - mt
+permissions:
+  minetail.help:
+    description: Получение списка команд плагина.
+  minetail.register:
+    description: Регистрация на сервере. Производится один раз при заходе на сервер.
+  minetail.reload:
+    description: Перезагрузить конфигурацию плагина.
+

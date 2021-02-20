@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.example</groupId>
   <artifactId>MineTail</artifactId>
-  <version>0.0.3-SNAPSHOT</version>
+  <version>0.0.7-SNAPSHOT</version>
   <build>
     <resources>
       <resource>
@@ -41,6 +41,10 @@
               <pattern>org.reflections</pattern>
               <shadedPattern>ru.minat0.MineTails</shadedPattern>
             </relocation>
+            <relocation>
+              <pattern>de.themoep</pattern>
+              <shadedPattern>io.github.apfelcreme.Pipes.libs</shadedPattern>
+            </relocation>
           </relocations>
         </configuration>
       </plugin>
@@ -62,6 +66,10 @@
     <repository>
       <id>Scarsz-Nexus</id>
       <url>https://nexus.scarsz.me/content/groups/public/</url>
+    </repository>
+    <repository>
+      <id>minebench-repo</id>
+      <url>https://repo.minebench.de/</url>
     </repository>
   </repositories>
   <dependencies>

@@ -23,9 +23,14 @@ public class DiscordSRVListener implements Listener {
     public void discordMessageProcessed(DiscordGuildMessagePostProcessEvent event) {
         AccountLinkManager am = DiscordSRV.getPlugin().getAccountLinkManager();
         UUID id = am.getUuid(event.getAuthor().getId());
-        Player p = Objects.requireNonNull(Bukkit.getPlayer(id));
 
-        String format = event.getProcessedMessage().replaceFirst(":[a-zA-Z]+:", "");
-        event.setProcessedMessage(format.replace(format.split(" ")[4], p.getName()));
+        if (id != null) {
+            Player p = Objects.requireNonNull(Bukkit.getPlayer(id));
+            event.setProcessedMessage(removeDiscordEmojis(event.getProcessedMessage()).replace(event.getAuthor().getName(), p.getName()));
+        }
+    }
+
+    String removeDiscordEmojis(String string) {
+        return string.replaceFirst(":[a-zA-Z]+:", "");
     }
 }

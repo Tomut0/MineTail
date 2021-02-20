@@ -1,6 +1,14 @@
 ru\minat0\minetail\integrations\AuthMeLoginEvent.class
+ru\minat0\minetail\data\BaseCommand.class
 ru\minat0\minetail\integrations\DiscordSRVListener.class
-ru\minat0\minetail\utils\ServerUtils.class
-ru\minat0\minetail\managers\ConfigManager.class
+ru\minat0\minetail\managers\DatabaseManager.class
+ru\minat0\minetail\commands\Register.class
+ru\minat0\minetail\commands\Reload.class
 ru\minat0\minetail\utils\ErrorsUtil.class
+ru\minat0\minetail\commands\Register$1.class
+ru\minat0\minetail\managers\ServerManager.class
+ru\minat0\minetail\data\Mage$MAGIC_CLASS.class
+ru\minat0\minetail\data\Mage.class
+ru\minat0\minetail\managers\CommandManager.class
+ru\minat0\minetail\managers\ConfigManager.class
 ru\minat0\minetail\MineTail.class
