@@ -10,9 +10,33 @@ import ru.minat0.minetail.utils.ErrorsUtil;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.net.Socket;
 
 public class ServerManager {
-    public boolean isOnline(String serverName) {
+
+    /**
+     * Used on Spigot/Bukkit
+     * @param host
+     * @param port
+     * @return True if server is online
+     */
+    public boolean isOnline(String host, int port) {
+        try {
+            Socket s = new Socket(host, port);
+            s.close();
+            return true;
+        } catch (IOException e) {
+            return false;
+        }
+    }
+
+    /**
+     * Used on BungeeCord
+     *
+     * @param serverName
+     * @return True if server is server online
+     */
+    public boolean isOnlineBungee(String serverName) {
         ServerInfo server = ProxyServer.getInstance().getServerInfo(serverName);
 
         final boolean[] isOnline = new boolean[1];

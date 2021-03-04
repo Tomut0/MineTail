@@ -1,19 +1,11 @@
 package ru.minat0.minetail.commands;
 
-import de.themoep.inventorygui.GuiElement;
-import de.themoep.inventorygui.InventoryGui;
-import de.themoep.inventorygui.StaticGuiElement;
-import org.bukkit.Material;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
-import ru.minat0.minetail.MineTail;
 import ru.minat0.minetail.data.BaseCommand;
-import ru.minat0.minetail.data.Mage;
+import ru.minat0.minetail.data.inventories.RegisterInventory;
+import ru.minat0.minetail.utils.LuckPermsUtils;
 
 public class Register extends BaseCommand {
-    private final MineTail plugin = MineTail.getInstance();
-
     private static final String commandDescription = "Зарегистрироваться на сервере. Работает только один раз при заходе на сервер.";
     private static final String commandPermission = "minetail.register";
 
@@ -33,25 +25,10 @@ public class Register extends BaseCommand {
     }
 
     @Override
-    public void initialize(String[] args, Player sender) {
-        FileConfiguration config = plugin.getConfiguration().getConfig();
+    public void run(Player sender, String[] args) {
+        RegisterInventory regInv = new RegisterInventory(this);
+        regInv.gui.show(sender);
 
-        String[] guiSetup = {"    s    "};
-        InventoryGui gui = new InventoryGui(plugin, null, "Регистрация | Выбор класса", guiSetup);
-        gui.setFiller(new ItemStack(Material.GRAY_STAINED_GLASS, 1));
-        gui.addElement(new StaticGuiElement('s', new ItemStack(Material.DIAMOND_SWORD), new GuiElement.Action() {
-            @Override
-            public boolean onClick(GuiElement.Click click) {
-                /**
-                 * Todo: Async thread + syncing between servers + Remove user permission to register
-                 */
-                plugin.getDatabaseManager().insert(new Mage(sender, config.getInt("mana"),
-                        config.getInt("maxMana"), config.getInt("magicLevel"), null, Mage.MAGIC_CLASS.HOLDING_MAGIC.name()));
-                gui.close();
-                plugin.getServerManager().teleportToServer(sender, "fairy");
-                return true;
-            }
-        }, "Это магия", "построенная на..."));
-        gui.show(sender);
+        LuckPermsUtils.addPermission(sender.getUniqueId(), commandPermission, false);
     }
 }

@@ -27,6 +27,7 @@ public class CommandManager implements CommandExecutor, TabCompleter {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
+        // TODO Refactor this
         if (sender instanceof Player) {
             Player p = (Player) sender;
 
@@ -39,9 +40,10 @@ public class CommandManager implements CommandExecutor, TabCompleter {
                             try {
                                 BaseCommand bcommand = (BaseCommand) cmd.getDeclaredConstructor().newInstance();
 
-                                if (p.hasPermission(bcommand.getCommandPermission()))
-                                    bcommand.initialize(args, p);
-                                else
+                                if (p.hasPermission(bcommand.getCommandPermission())) {
+                                    bcommand.setCommandSender(p);
+                                    bcommand.run(p, args);
+                                } else
                                     p.sendMessage(ChatColor.DARK_RED + "У вас недостаточно прав, чтобы использовать эту команду!");
                             } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException | InstantiationException ex) {
                                 ErrorsUtil.error("Error with basic commands: " + ex.getMessage());

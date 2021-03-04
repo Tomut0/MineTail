@@ -1,32 +1,41 @@
 package ru.minat0.minetail;
 
+import com.nisovin.magicspells.MagicSpells;
+import com.nisovin.magicspells.mana.ManaHandler;
 import github.scarsz.discordsrv.DiscordSRV;
+import org.bukkit.boss.BossBar;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.jetbrains.annotations.NotNull;
 import org.reflections.Reflections;
 import ru.minat0.minetail.integrations.AuthMeLoginEvent;
 import ru.minat0.minetail.integrations.DiscordSRVListener;
+import ru.minat0.minetail.integrations.MagicSpellsCastEvent;
 import ru.minat0.minetail.managers.CommandManager;
 import ru.minat0.minetail.managers.ConfigManager;
 import ru.minat0.minetail.managers.DatabaseManager;
 import ru.minat0.minetail.managers.ServerManager;
 import ru.minat0.minetail.utils.ErrorsUtil;
 
+import java.util.HashMap;
 import java.util.Set;
+import java.util.UUID;
 
 public class MineTail extends JavaPlugin {
     private static MineTail instance;
 
-    private ConfigManager configManager;
-    private ServerManager serverManager;
-    private DatabaseManager databaseManager;
+    private static ConfigManager configManager;
+    private static ServerManager serverManager;
+    private static DatabaseManager databaseManager;
 
     public static MineTail getInstance() {
         return instance;
     }
     private final DiscordSRVListener discordSRVListener = new DiscordSRVListener(this);
 
+    private final HashMap<UUID, BossBar> manaBars = new HashMap<>();
+    private ManaHandler manaHandler;
+
+    @SuppressWarnings("ConstantConditions")
     @Override
     public void onEnable() {
         instance = this;
@@ -35,12 +44,14 @@ public class MineTail extends JavaPlugin {
         configManager.reloadConfig();
 
         serverManager = new ServerManager();
-        if (!serverManager.isAuthServer())
+        if (!serverManager.isAuthServer()) {
             DiscordSRV.api.subscribe(discordSRVListener);
+            manaHandler = MagicSpells.getManaHandler();
+        }
 
-        this.databaseManager = new DatabaseManager();
-        this.databaseManager.setup();
-        this.databaseManager.loadDataToMemory();
+        databaseManager = new DatabaseManager();
+        databaseManager.setup();
+        databaseManager.loadDataToMemory();
 
         getServer().getMessenger().registerOutgoingPluginChannel(instance, "BungeeCord");
         registerEvents();
@@ -69,19 +80,28 @@ public class MineTail extends JavaPlugin {
                     ErrorsUtil.error("Error registering event: " + ex.getMessage());
                 }
             }
+
+            getServer().getPluginManager().registerEvents(new MagicSpellsCastEvent(), this);
         }
     }
 
-    public ServerManager getServerManager() {
+    public static ServerManager getServerManager() {
         return serverManager;
     }
 
-    public DatabaseManager getDatabaseManager() {
+    public static DatabaseManager getDatabaseManager() {
         return databaseManager;
     }
 
-    @NotNull
-    public ConfigManager getConfiguration() {
+    public static ConfigManager getConfiguration() {
         return configManager;
+    }
+
+    public HashMap<UUID, BossBar> getManaBars() {
+        return manaBars;
+    }
+
+    public ManaHandler getManaHandler() {
+        return manaHandler;
     }
 }

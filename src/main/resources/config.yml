@@ -16,7 +16,41 @@ DataSource:
   # Database Name
   mySQLDatabase: ''
 
-# Default settings for Mage
-mana: 100
-maxMana: 100
+# Default settings for Mage when player register
 magicLevel: 1
+
+# Fairy Tail server settings
+host: "135.181.235.114"
+port: 25562
+maintenance: false
+
+
+# BossBar on spell disappear time (in seconds)
+# Set it on 0 or -1 to disable disappear
+disappearTime: 3
+
+# GUIs
+GUI:
+  register:
+    title: "Регистрация | Выбор класса"
+    format:
+    - "   s k   "
+    items:
+      holding_magic:
+        material: DIAMOND_SWORD
+        key: s
+        lore:
+          - Держательная Магия
+          - '--------------------'
+          - Этот тип магии требует,
+          - чтобы Волшебник использовал
+          - внешний источник для создания Волшебной силы.
+      caster_magic:
+        material: DIAMOND_AXE
+        key: k
+        lore:
+          - Магия Заклинателя
+          - '--------------------'
+          - Этот тип магии требует,
+          - чтобы Волшебник использовал
+          - внешний источник для создания Волшебной силы.

@@ -6,6 +6,10 @@ main: ru.minat0.minetail.MineTail
 softdepend:
   - "DiscordSRV"
   - "AuthMe"
+  - "MagicSpells"
+  - "CMI"
+  - "MythicMobs"
+  - "PlaceholderAPI"
 commands:
   minetail:
     description: Список главных комманд сервера.

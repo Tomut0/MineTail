@@ -5,7 +5,7 @@ import github.scarsz.discordsrv.api.Subscribe;
 import github.scarsz.discordsrv.api.events.DiscordGuildMessagePostProcessEvent;
 import github.scarsz.discordsrv.objects.managers.AccountLinkManager;
 import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.Plugin;
 
@@ -25,12 +25,12 @@ public class DiscordSRVListener implements Listener {
         UUID id = am.getUuid(event.getAuthor().getId());
 
         if (id != null) {
-            Player p = Objects.requireNonNull(Bukkit.getPlayer(id));
-            event.setProcessedMessage(removeDiscordEmojis(event.getProcessedMessage()).replace(event.getAuthor().getName(), p.getName()));
+            OfflinePlayer player = Bukkit.getOfflinePlayer(id);
+            event.setProcessedMessage(removeDiscordEmojis(event.getProcessedMessage()).replace(event.getAuthor().getName(), Objects.requireNonNull(player.getName())));
         }
     }
 
     String removeDiscordEmojis(String string) {
-        return string.replaceFirst(":[a-zA-Z]+:", "");
+        return string.replaceAll(":[a-zA-Z]+:", "");
     }
 }

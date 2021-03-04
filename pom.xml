@@ -89,6 +89,16 @@
             <id>minebench-repo</id>
             <url>https://repo.minebench.de/</url>
         </repository>
+        <!-- CraftationGaming repository-->
+        <repository>
+            <id>CraftationGaming</id>
+            <url>https://raw.githubusercontent.com/RockinChaos/repository/maven-public/</url>
+        </repository>
+        <!-- PlaceholderAPI repository -->
+        <repository>
+            <id>placeholderapi</id>
+            <url>https://repo.extendedclip.com/content/repositories/placeholderapi/</url>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -137,6 +147,30 @@
             <artifactId>inventorygui</artifactId>
             <version>1.4.3-SNAPSHOT</version>
             <scope>compile</scope>
+        </dependency>
+
+        <!-- LuckPerms API -->
+        <dependency>
+            <groupId>net.luckperms</groupId>
+            <artifactId>api</artifactId>
+            <version>5.2</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!--ItemJoin API-->
+        <dependency>
+            <groupId>me.RockinChaos.itemjoin</groupId>
+            <artifactId>ItemJoin</artifactId>
+            <version>5.2.1-RELEASE</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- PlaceholderAPI API-->
+        <dependency>
+            <groupId>me.clip</groupId>
+            <artifactId>placeholderapi</artifactId>
+            <version>2.10.9</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 </project>

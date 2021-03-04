@@ -14,20 +14,17 @@ import java.util.UUID;
 public class Mage {
 
     private final OfflinePlayer player;
-    private Integer mana;
-    private Integer maxMana;
     private Integer magicLevel;
     private String rank;
     private String magicClass;
+    private String manaBarColor;
 
-    public Mage(@NotNull OfflinePlayer player, Integer mana, Integer maxMana,
-                Integer magicLevel, @Nullable String rank, @Nullable String magicClass) {
+    public Mage(@NotNull OfflinePlayer player, Integer magicLevel, @Nullable String rank, @Nullable String magicClass, String manaBarColor) {
         this.player = player;
-        this.mana = mana;
-        this.maxMana = maxMana;
         this.rank = rank;
         this.magicLevel = magicLevel;
         this.magicClass = magicClass;
+        this.manaBarColor = manaBarColor;
     }
 
     public enum MAGIC_CLASS {
@@ -48,6 +45,7 @@ public class Mage {
     public UUID getUniqueId() {
         return player.getUniqueId();
     }
+
     @Override
     public int hashCode() {
         return toPlayer().getUniqueId().hashCode();
@@ -76,22 +74,6 @@ public class Mage {
         return false;
     }
 
-    public Integer getMana() {
-        return mana;
-    }
-
-    public void setMana(Integer mana) {
-        this.mana = mana;
-    }
-
-    public Integer getMaxMana() {
-        return maxMana;
-    }
-
-    public void setMaxMana(Integer maxMana) {
-        this.maxMana = maxMana;
-    }
-
     public Integer getMagicLevel() {
         return magicLevel;
     }
@@ -114,5 +96,13 @@ public class Mage {
 
     public void setMagicClass(String magicClass) {
         this.magicClass = magicClass;
+    }
+
+    public String getManaBarColor() {
+        return manaBarColor;
+    }
+
+    public void setManaBarColor(String manaBarColor) {
+        this.manaBarColor = manaBarColor;
     }
 }
