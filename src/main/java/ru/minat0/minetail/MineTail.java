@@ -10,6 +10,7 @@ import org.reflections.Reflections;
 import ru.minat0.minetail.integrations.AuthMeLoginEvent;
 import ru.minat0.minetail.integrations.DiscordSRVListener;
 import ru.minat0.minetail.integrations.MagicSpellsCastEvent;
+import ru.minat0.minetail.listeners.PluginMessage;
 import ru.minat0.minetail.managers.CommandManager;
 import ru.minat0.minetail.managers.ConfigManager;
 import ru.minat0.minetail.managers.DatabaseManager;
@@ -35,7 +36,6 @@ public class MineTail extends JavaPlugin {
     private final HashMap<UUID, BossBar> manaBars = new HashMap<>();
     private ManaHandler manaHandler;
 
-    @SuppressWarnings("ConstantConditions")
     @Override
     public void onEnable() {
         instance = this;
@@ -54,6 +54,7 @@ public class MineTail extends JavaPlugin {
         databaseManager.loadDataToMemory();
 
         getServer().getMessenger().registerOutgoingPluginChannel(instance, "BungeeCord");
+        getServer().getMessenger().registerIncomingPluginChannel(getInstance(), "BungeeCord", new PluginMessage());
         registerEvents();
 
         getCommand("minetail").setExecutor(new CommandManager());

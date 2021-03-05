@@ -9,7 +9,7 @@ public abstract class Inventory {
     public final MineTail plugin = MineTail.getInstance();
     public final FileConfiguration config = plugin.getConfig();
 
-    private final InventoryGui gui = new InventoryGui(plugin, this.getInventoryOwner(), this.getInventoryTitle(), this.getInventoryFormat());
+    private final InventoryGui gui = new InventoryGui(plugin, getInventoryOwner(), getInventoryTitle(), getInventoryFormat());
 
     public abstract void addGUIElements();
 

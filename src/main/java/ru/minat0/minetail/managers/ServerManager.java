@@ -1,5 +1,7 @@
 package ru.minat0.minetail.managers;
 
+import com.google.common.io.ByteArrayDataOutput;
+import com.google.common.io.ByteStreams;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ServerInfo;
 import org.bukkit.Bukkit;
@@ -12,12 +14,14 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 
+@SuppressWarnings("UnstableApiUsage")
 public class ServerManager {
 
     /**
      * Used on Spigot/Bukkit
-     * @param host
-     * @param port
+     *
+     * @param host of server
+     * @param port of server
      * @return True if server is online
      */
     public boolean isOnline(String host, int port) {
@@ -33,8 +37,8 @@ public class ServerManager {
     /**
      * Used on BungeeCord
      *
-     * @param serverName
-     * @return True if server is server online
+     * @param serverName - server to player teleport
+     * @return True if server online
      */
     public boolean isOnlineBungee(String serverName) {
         ServerInfo server = ProxyServer.getInstance().getServerInfo(serverName);
@@ -49,6 +53,12 @@ public class ServerManager {
         return isOnline[0];
     }
 
+    /**
+     * Teleports player to a server trough BungeeCord
+     *
+     * @param player
+     * @param serverName
+     */
     public void teleportToServer(Player player, String serverName) {
         ByteArrayOutputStream b = new ByteArrayOutputStream();
         DataOutputStream out = new DataOutputStream(b);
@@ -62,15 +72,49 @@ public class ServerManager {
         }
     }
 
-    public void getPlayerCount(String server)
-    {
+    public void sendPluginMessage(Player player, String subchannel, boolean argument) {
+        ByteArrayDataOutput out = ByteStreams.newDataOutput();
+        out.writeUTF(subchannel);
+        out.writeBoolean(argument);
+        player.sendPluginMessage(MineTail.getInstance(), "BungeeCord", out.toByteArray());
+    }
+
+    public void sendPluginMessage(Player player, String subchannel, String argument) {
+        ByteArrayDataOutput out = ByteStreams.newDataOutput();
+        out.writeUTF(subchannel);
+        out.writeUTF(argument);
+        player.sendPluginMessage(MineTail.getInstance(), "BungeeCord", out.toByteArray());
+    }
+
+    public void sendForwardMessage(Player player, String serverName, String channel, String message) {
+        ByteArrayDataOutput out = ByteStreams.newDataOutput();
+        out.writeUTF("Forward");
+        out.writeUTF(serverName);
+        out.writeUTF(channel);
+
+        ByteArrayOutputStream msgbytes = new ByteArrayOutputStream();
+        DataOutputStream msgout = new DataOutputStream(msgbytes);
+
+        try {
+            msgout.writeUTF(message);
+        } catch (IOException exception) {
+            exception.printStackTrace();
+        }
+
+        out.writeShort(msgbytes.toByteArray().length);
+        out.write(msgbytes.toByteArray());
+
+        player.sendPluginMessage(MineTail.getInstance(), "BungeeCord", out.toByteArray());
+    }
+
+    public void getPlayerCount(String server) {
         ByteArrayOutputStream b = new ByteArrayOutputStream();
         DataOutputStream out = new DataOutputStream(b);
 
         try {
             out.writeUTF("PlayerCount");
             out.writeUTF(server);
-        } catch (IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }

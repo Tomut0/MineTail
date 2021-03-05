@@ -117,6 +117,18 @@ public class DatabaseManager {
         }
     }
 
+    public void delete(@NotNull Mage mage) {
+        String uuid = mage.getUniqueId().toString();
+
+        String delete = "DELETE FROM minetail_players WHERE uuid=?";
+        try (PreparedStatement statement = getConnection().prepareStatement(delete)) {
+            statement.setString(1, uuid);
+            statement.execute();
+        } catch (SQLException ex) {
+            ErrorsUtil.error("An error occurred while trying to delete the players data! " + ex.getMessage());
+        }
+    }
+
     public void insert(@NotNull Mage mage) {
         String uuid = mage.getUniqueId().toString();
 
@@ -128,8 +140,8 @@ public class DatabaseManager {
             statement.setString(4, mage.getRank());
             statement.setString(5, mage.getMagicClass());
             statement.setString(6, mage.getManaBarColor());
-            statement.execute();
 
+            statement.execute();
             mages.add(mage);
         } catch (SQLException ex) {
             ErrorsUtil.error("An error occurred while trying to insert the players data! " + ex.getMessage());

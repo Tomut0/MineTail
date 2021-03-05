@@ -28,8 +28,10 @@ maintenance: false
 # BossBar on spell disappear time (in seconds)
 # Set it on 0 or -1 to disable disappear
 disappearTime: 3
+bossBarDefaultColor: PINK
 
-# GUIs
+
+# GUIs (working only on Auth server)
 GUI:
   register:
     title: "Регистрация | Выбор класса"
