@@ -27,9 +27,8 @@ public class ChangeClass extends BaseCommand {
 
     @Override
     public void run(Player sender, String[] args) {
-        ConversationFactory cf = new ConversationFactory(plugin);
+        ConversationFactory cf = new ConversationFactory(plugin).withTimeout(60);
         Conversation conversation = cf.withFirstPrompt(new ConfirmClassChange()).withLocalEcho(true).buildConversation(sender);
-        // TODO: Conversation timeout?
         conversation.begin();
     }
 }

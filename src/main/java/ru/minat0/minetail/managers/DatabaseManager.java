@@ -1,5 +1,6 @@
 package ru.minat0.minetail.managers;
 
+import com.zaxxer.hikari.HikariDataSource;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.jetbrains.annotations.NotNull;
@@ -10,7 +11,6 @@ import ru.minat0.minetail.utils.ErrorsUtil;
 import java.io.File;
 import java.io.IOException;
 import java.sql.*;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -54,6 +54,7 @@ public class DatabaseManager {
     }
 
     private void initialize() throws SQLException {
+        HikariDataSource ds = new HikariDataSource();
         FileConfiguration config = MineTail.getConfiguration().getConfig();
 
         String dbType = config.getString("DataSource.backend", "SQLITE");
@@ -65,19 +66,23 @@ public class DatabaseManager {
         }
 
         if (dbType.equalsIgnoreCase("MYSQL")) {
-
+            String database = config.getString("DataSource.mySQLDatabase");
             String hostname = config.getString("DataSource.mySQLHost");
             String port = config.getString("DataSource.mySQLPort");
-            String database = config.getString("DataSource.mySQLDatabase");
-            String username = config.getString("DataSource.mySQLUsername");
-            String password = config.getString("DataSource.mySQLPassword");
+
+            ds.setUsername(config.getString("DataSource.mySQLUsername"));
+            ds.setPassword(config.getString("DataSource.mySQLPassword"));
+            ds.setMaximumPoolSize(20);
+            ds.setDriverClassName("org.mariadb.jdbc.Driver");
+            ds.setJdbcUrl("jdbc:mariadb://" + hostname + ":" + port + "/" + database);
+            ds.addDataSourceProperty("cachePrepStmts", "true");
+            ds.addDataSourceProperty("prepStmtCacheSize", "250");
+            ds.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
 
             try {
-                Class.forName("com.mysql.jdbc.Driver");
-                connection = DriverManager.getConnection("jdbc:mysql://" + hostname + ":" + port + "/" + database +
-                        "?useSSL=false", username, password);
-            } catch (ClassNotFoundException ex) {
-                ErrorsUtil.error("MySQL driver not found!");
+                connection = ds.getConnection();
+            } catch (SQLException ex) {
+                ErrorsUtil.error("Error while trying to establish database connection: " + ex.getMessage());
             }
         } else {
             File sqlFile = new File(plugin.getDataFolder(), dbName + ".db");
@@ -91,9 +96,10 @@ public class DatabaseManager {
             }
 
             try {
-                Class.forName("org.sqlite.JDBC");
-                connection = DriverManager.getConnection("jdbc:sqlite:" + sqlFile);
-            } catch (ClassNotFoundException | SQLException ex) {
+                ds.setDriverClassName("org.sqlite.JDBC");
+                ds.setJdbcUrl("jdbc:sqlite:" + sqlFile);
+                connection = ds.getConnection();
+            } catch (SQLException ex) {
                 ErrorsUtil.error("SQLite driver not found!");
             }
         }
