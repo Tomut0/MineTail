@@ -1,10 +1,10 @@
 package ru.minat0.minetail.commands;
 
-import org.bukkit.conversations.Conversation;
-import org.bukkit.conversations.ConversationFactory;
+import org.bukkit.conversations.Conversable;
 import org.bukkit.entity.Player;
+import ru.minat0.minetail.conversation.TailConversation;
+import ru.minat0.minetail.conversation.prompts.ConfirmClassChange;
 import ru.minat0.minetail.data.BaseCommand;
-import ru.minat0.minetail.prompts.ConfirmClassChange;
 
 public class ChangeClass extends BaseCommand {
     private static final String commandDescription = "Сменить свой класс.";
@@ -27,8 +27,7 @@ public class ChangeClass extends BaseCommand {
 
     @Override
     public void run(Player sender, String[] args) {
-        ConversationFactory cf = new ConversationFactory(plugin).withTimeout(60);
-        Conversation conversation = cf.withFirstPrompt(new ConfirmClassChange()).withLocalEcho(true).buildConversation(sender);
+        TailConversation conversation = new TailConversation(plugin, ((Conversable) sender), new ConfirmClassChange());
         conversation.begin();
     }
 }

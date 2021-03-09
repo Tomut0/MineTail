@@ -1,26 +1,29 @@
 package ru.minat0.minetail.data;
 
+import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.*;
 import java.util.UUID;
 
 /**
  * @author Minat0_
  * I'd seen example from RoinujNosde Warrior's class.
  */
-public class Mage {
+public class Mage implements Serializable{
+    private static final long serialVersionUID = 1L;
 
-    private final OfflinePlayer player;
+    private final UUID uuid;
     private Integer magicLevel;
     private String rank;
     private String magicClass;
     private String manaBarColor;
 
-    public Mage(@NotNull OfflinePlayer player, Integer magicLevel, @Nullable String rank, @Nullable String magicClass, String manaBarColor) {
-        this.player = player;
+    public Mage(@NotNull UUID uuid, Integer magicLevel, @Nullable String rank, @Nullable String magicClass, String manaBarColor) {
+        this.uuid = uuid;
         this.rank = rank;
         this.magicLevel = magicLevel;
         this.magicClass = magicClass;
@@ -31,34 +34,33 @@ public class Mage {
         HOLDING_MAGIC, CASTER_MAGIC
     }
 
-    @Nullable
-    public Player toOnlinePlayer() {
-        return player.getPlayer();
+    public OfflinePlayer getOfflinePlayer() {
+        return Bukkit.getOfflinePlayer(uuid);
     }
 
-    @NotNull
-    public OfflinePlayer toPlayer() {
-        return player;
+    @Nullable
+    public Player getOnlinePlayer() {
+        return getOfflinePlayer().getPlayer();
     }
 
     @NotNull
     public UUID getUniqueId() {
-        return player.getUniqueId();
+        return getOfflinePlayer().getUniqueId();
     }
 
     @Override
     public int hashCode() {
-        return toPlayer().getUniqueId().hashCode();
+        return getOfflinePlayer().getUniqueId().hashCode();
     }
 
     @NotNull
     public String getName() {
-        return player.getName() != null ? player.getName() : "null";
+        return getOfflinePlayer().getName() != null ? getOfflinePlayer().getName() : "null";
     }
 
     public void sendMessage(@Nullable String message) {
         if (message == null) return;
-        Player player = toOnlinePlayer();
+        Player player = getOnlinePlayer();
         if (player != null) {
             player.sendMessage(message);
         }
@@ -67,11 +69,16 @@ public class Mage {
     @Override
     public boolean equals(Object o) {
         if (o instanceof Mage) {
-            final UUID uniqueId = toPlayer().getUniqueId();
-            final UUID uniqueId2 = ((Mage) o).toPlayer().getUniqueId();
+            final UUID uniqueId = getOfflinePlayer().getUniqueId();
+            final UUID uniqueId2 = ((Mage) o).getOfflinePlayer().getUniqueId();
             return uniqueId.equals(uniqueId2);
         }
         return false;
+    }
+
+    @NotNull
+    public UUID getUuid() {
+        return uuid;
     }
 
     public Integer getMagicLevel() {
@@ -104,5 +111,23 @@ public class Mage {
 
     public void setManaBarColor(String manaBarColor) {
         this.manaBarColor = manaBarColor;
+    }
+
+    public static byte[] serialize(@NotNull Mage mage) throws IOException {
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        ObjectOutputStream oos = new ObjectOutputStream(bos);
+        oos.writeObject(mage);
+        return bos.toByteArray();
+    }
+
+    public static Mage deserialize(@NotNull byte[] bytes) throws IOException {
+        ByteArrayInputStream bos = new ByteArrayInputStream(bytes);
+        ObjectInputStream ois = new ObjectInputStream(bos);
+        try {
+            return (Mage) ois.readObject();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }

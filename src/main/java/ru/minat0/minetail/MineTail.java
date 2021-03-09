@@ -3,8 +3,10 @@ package ru.minat0.minetail;
 import com.nisovin.magicspells.MagicSpells;
 import com.nisovin.magicspells.mana.ManaHandler;
 import github.scarsz.discordsrv.DiscordSRV;
+import net.milkbowl.vault.economy.Economy;
 import org.bukkit.boss.BossBar;
 import org.bukkit.event.Listener;
+import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.reflections.Reflections;
 import ru.minat0.minetail.integrations.AuthMeLoginEvent;
@@ -31,10 +33,17 @@ public class MineTail extends JavaPlugin {
     public static MineTail getInstance() {
         return instance;
     }
+
     private final DiscordSRVListener discordSRVListener = new DiscordSRVListener(this);
 
     private final HashMap<UUID, BossBar> manaBars = new HashMap<>();
     private ManaHandler manaHandler;
+
+    private static Economy econ = null;
+
+    public static Economy getEcon() {
+        return econ;
+    }
 
     @Override
     public void onEnable() {
@@ -47,6 +56,12 @@ public class MineTail extends JavaPlugin {
         if (!serverManager.isAuthServer()) {
             DiscordSRV.api.subscribe(discordSRVListener);
             manaHandler = MagicSpells.getManaHandler();
+
+            if (!setupEconomy()) {
+                ErrorsUtil.error(String.format("[%s] - Disabled due to no Vault dependency found!", getDescription().getName()));
+                getServer().getPluginManager().disablePlugin(this);
+                return;
+            }
         }
 
         databaseManager = new DatabaseManager();
@@ -58,6 +73,18 @@ public class MineTail extends JavaPlugin {
         registerEvents();
 
         getCommand("minetail").setExecutor(new CommandManager());
+    }
+
+    private boolean setupEconomy() {
+        if (getServer().getPluginManager().getPlugin("Vault") == null) {
+            return false;
+        }
+        RegisteredServiceProvider<Economy> rsp = getServer().getServicesManager().getRegistration(Economy.class);
+        if (rsp == null) {
+            return false;
+        }
+        econ = rsp.getProvider();
+        return true;
     }
 
     @Override

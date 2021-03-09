@@ -6,6 +6,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.messaging.PluginMessageListener;
 import org.jetbrains.annotations.NotNull;
 import ru.minat0.minetail.MineTail;
+import ru.minat0.minetail.data.Mage;
 
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
@@ -29,6 +30,14 @@ public class PluginMessage implements PluginMessageListener {
                 if (argument.equals("Reload")) {
                     MineTail.getDatabaseManager().getMages().clear();
                     MineTail.getDatabaseManager().loadDataToMemory();
+                } else if (argument.equals("MageSetInsert")) {
+                    if (MineTail.getDatabaseManager().getMage(player.getUniqueId()) == null) {
+                        MineTail.getDatabaseManager().getMages().add(Mage.deserialize(msgin.readAllBytes()));
+                    }
+                } else if (argument.equals("MageSetDelete")) {
+                    if (MineTail.getDatabaseManager().getMage(player.getUniqueId()) != null) {
+                        MineTail.getDatabaseManager().getMages().remove(Mage.deserialize(msgin.readAllBytes()));
+                    }
                 }
             } catch (IOException e) {
                 e.printStackTrace();

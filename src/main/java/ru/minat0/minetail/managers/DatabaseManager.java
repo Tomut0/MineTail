@@ -4,6 +4,7 @@ import com.zaxxer.hikari.HikariDataSource;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import ru.minat0.minetail.MineTail;
 import ru.minat0.minetail.data.Mage;
 import ru.minat0.minetail.utils.ErrorsUtil;
@@ -166,7 +167,7 @@ public class DatabaseManager {
                 String magicClass = rs.getString("magicClass");
                 String manaBarColor = rs.getString("manaBarColor");
 
-                Mage mage = new Mage(Bukkit.getOfflinePlayer(uuid), magicLevel, rank, magicClass, manaBarColor);
+                Mage mage = new Mage(uuid, magicLevel, rank, magicClass, manaBarColor);
                 mages.add(mage);
             }
         } catch (SQLException ex) {
@@ -174,9 +175,10 @@ public class DatabaseManager {
         }
     }
 
+    @Nullable
     public Mage getMage(@NotNull UUID uuid) {
         for (Mage mage : mages) {
-            if (mage.toPlayer().getUniqueId().equals(uuid)) {
+            if (mage.getOfflinePlayer().getUniqueId().equals(uuid)) {
                 return mage;
             }
         }

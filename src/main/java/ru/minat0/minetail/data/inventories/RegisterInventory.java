@@ -53,8 +53,10 @@ public class RegisterInventory extends Inventory {
         if (mageIsRegistered) {
             MineTail.getServerManager().teleportToServer(player, "fairy");
         } else {
-            MineTail.getDatabaseManager().insert(new Mage(player, config.getInt("magicLevel"), null, magicClass, "PINK"));
+            Mage mage = new Mage(player.getUniqueId(), config.getInt("magicLevel"), null, magicClass, "PINK");
+            MineTail.getDatabaseManager().insert(mage);
             getGUI().close();
+            MineTail.getServerManager().sendForwardMage(player, "fairy", "DatabaseChannel", "MageSetInsert", mage);
             MineTail.getServerManager().teleportToServer(player, "fairy");
             return true;
         }

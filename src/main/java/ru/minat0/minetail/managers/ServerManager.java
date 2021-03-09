@@ -7,6 +7,7 @@ import net.md_5.bungee.api.config.ServerInfo;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import ru.minat0.minetail.MineTail;
+import ru.minat0.minetail.data.Mage;
 import ru.minat0.minetail.utils.ErrorsUtil;
 
 import java.io.ByteArrayOutputStream;
@@ -97,6 +98,28 @@ public class ServerManager {
 
         try {
             msgout.writeUTF(message);
+        } catch (IOException exception) {
+            exception.printStackTrace();
+        }
+
+        out.writeShort(msgbytes.toByteArray().length);
+        out.write(msgbytes.toByteArray());
+
+        player.sendPluginMessage(MineTail.getInstance(), "BungeeCord", out.toByteArray());
+    }
+
+    public void sendForwardMage(Player player, String serverName, String channel, String argument, Mage mage) {
+        ByteArrayDataOutput out = ByteStreams.newDataOutput();
+        out.writeUTF("Forward");
+        out.writeUTF(serverName);
+        out.writeUTF(channel);
+
+        ByteArrayOutputStream msgbytes = new ByteArrayOutputStream();
+        DataOutputStream msgout = new DataOutputStream(msgbytes);
+
+        try {
+            msgout.writeUTF(argument);
+            msgout.write(Mage.serialize(mage));
         } catch (IOException exception) {
             exception.printStackTrace();
         }
