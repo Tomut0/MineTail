@@ -27,17 +27,21 @@ public class PluginMessage implements PluginMessageListener {
             DataInputStream msgin = new DataInputStream(new ByteArrayInputStream(msgbytes));
             try {
                 String argument = msgin.readUTF();
-                if (argument.equals("Reload")) {
-                    MineTail.getDatabaseManager().getMages().clear();
-                    MineTail.getDatabaseManager().loadDataToMemory();
-                } else if (argument.equals("MageSetInsert")) {
-                    if (MineTail.getDatabaseManager().getMage(player.getUniqueId()) == null) {
-                        MineTail.getDatabaseManager().getMages().add(Mage.deserialize(msgin.readAllBytes()));
-                    }
-                } else if (argument.equals("MageSetDelete")) {
-                    if (MineTail.getDatabaseManager().getMage(player.getUniqueId()) != null) {
-                        MineTail.getDatabaseManager().getMages().remove(Mage.deserialize(msgin.readAllBytes()));
-                    }
+                switch (argument) {
+                    case "Reload":
+                        MineTail.getDatabaseManager().getMages().clear();
+                        MineTail.getDatabaseManager().loadDataToMemory();
+                        break;
+                    case "MageSetInsert":
+                        if (MineTail.getDatabaseManager().getMage(player.getUniqueId()) == null) {
+                            MineTail.getDatabaseManager().getMages().add(Mage.deserialize(msgin.readAllBytes()));
+                        }
+                        break;
+                    case "MageSetDelete":
+                        if (MineTail.getDatabaseManager().getMage(player.getUniqueId()) != null) {
+                            MineTail.getDatabaseManager().getMages().remove(Mage.deserialize(msgin.readAllBytes()));
+                        }
+                        break;
                 }
             } catch (IOException e) {
                 e.printStackTrace();

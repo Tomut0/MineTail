@@ -22,7 +22,7 @@ public class PlayerJoin implements Listener {
         Mage mage = MineTail.getDatabaseManager().getMage(player.getUniqueId());
 
         if (!MineTail.getServerManager().isAuthServer()) {
-            BarColor barColor = (mage != null) ? BarColor.valueOf(MineTail.getDatabaseManager().getMage(player.getUniqueId()).getManaBarColor()) :
+            BarColor barColor = (mage != null) ? BarColor.valueOf(mage.getManaBarColor()) :
                     BarColor.valueOf(MineTail.getConfiguration().getConfig().getString("bossBarDefaultColor", "PINK"));
             BossBar manaBar = Bukkit.createBossBar("Мана", barColor, BarStyle.SOLID);
             plugin.getManaBars().put(player.getUniqueId(), manaBar);

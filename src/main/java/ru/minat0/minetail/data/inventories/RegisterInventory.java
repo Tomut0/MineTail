@@ -25,10 +25,10 @@ public class RegisterInventory extends Inventory {
 
     @Override
     public void addGUIElements() {
-        String path = "GUI.register.items.";
-
         for (Mage.MAGIC_CLASS magic_class : Mage.MAGIC_CLASS.values()) {
-            ConfigurationSection configurationSection = config.getConfigurationSection(path + magic_class.name());
+            String path = "GUI.register.items." + magic_class.name();
+
+            ConfigurationSection configurationSection = config.getConfigurationSection(path);
 
             if (configurationSection != null) {
                 String materialName = configurationSection.getString("material");
@@ -39,7 +39,7 @@ public class RegisterInventory extends Inventory {
 
                     if (material != null && letter != null) {
                         getGUI().addElement(new StaticGuiElement(letter.charAt(0),
-                                new ItemStack(material), click -> insertAndTeleport(sender, magic_class.name()),
+                                new ItemStack(material), click -> registerAndTeleport(sender, magic_class.name()),
                                 configurationSection.getStringList("lore").stream().map(String ->
                                         ChatColor.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(sender, String))).toArray(String[]::new)));
                     }
@@ -48,12 +48,13 @@ public class RegisterInventory extends Inventory {
         }
     }
 
-    boolean insertAndTeleport(Player player, String magicClass) {
+    boolean registerAndTeleport(Player player, String magicClass) {
         boolean mageIsRegistered = MineTail.getDatabaseManager().getMages().stream().anyMatch(mage -> mage.getUniqueId().equals(player.getUniqueId()));
+
         if (mageIsRegistered) {
             MineTail.getServerManager().teleportToServer(player, "fairy");
         } else {
-            Mage mage = new Mage(player.getUniqueId(), config.getInt("magicLevel"), null, magicClass, "PINK");
+            Mage mage = new Mage(player.getUniqueId(), config.getInt("magicLevel"), null, magicClass, config.getString("bossBarDefaultColor", "PINK"));
             MineTail.getDatabaseManager().insert(mage);
             getGUI().close();
             MineTail.getServerManager().sendForwardMage(player, "fairy", "DatabaseChannel", "MageSetInsert", mage);

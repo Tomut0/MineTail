@@ -10,6 +10,7 @@ softdepend:
   - "CMI"
   - "MythicMobs"
   - "PlaceholderAPI"
+  - "Vault"
 commands:
   minetail:
     description: Список главных комманд сервера.
