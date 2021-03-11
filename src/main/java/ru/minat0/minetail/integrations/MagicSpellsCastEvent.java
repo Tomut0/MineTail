@@ -1,6 +1,5 @@
 package ru.minat0.minetail.integrations;
 
-import com.nisovin.magicspells.MagicSpells;
 import com.nisovin.magicspells.events.SpellCastEvent;
 import org.bukkit.boss.BossBar;
 import org.bukkit.configuration.file.FileConfiguration;

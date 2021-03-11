@@ -9,15 +9,14 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import ru.minat0.minetail.MineTail;
-import ru.minat0.minetail.commands.Register;
 import ru.minat0.minetail.data.Mage;
 import ru.minat0.minetail.utils.ErrorsUtil;
 
 public class RegisterInventory extends Inventory {
     private final Player sender;
 
-    public RegisterInventory(Register register) {
-        this.sender = (Player) register.getCommandSender();
+    public RegisterInventory(Player player) {
+        this.sender = player;
 
         getGUI().setFiller(new ItemStack(Material.GRAY_STAINED_GLASS_PANE, 1));
         addGUIElements();

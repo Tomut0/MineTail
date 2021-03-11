@@ -1,5 +1,6 @@
 package ru.minat0.minetail.conversation.prompts;
 
+import com.Zrips.CMI.Modules.Economy.Economy;
 import me.clip.placeholderapi.PlaceholderAPI;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
@@ -48,7 +49,7 @@ public class ConfirmClassChange extends StringPrompt {
     public Prompt acceptInput(@NotNull ConversationContext conversationContext, @Nullable String input) {
         if (input != null && input.equalsIgnoreCase("Да")) {
             if (mage != null) {
-                if (MineTail.getEcon().has(offlinePlayer, 10000) && mage.getMagicLevel() >= 10) {
+                if (Economy.has(offlinePlayer, 10000) && mage.getMagicLevel() >= 10) {
                     MineTail.getDatabaseManager().delete(mage);
                     MineTail.getServerManager().sendForwardMage(player, "lobby", "DatabaseChannel", "MageSetDelete", mage);
                     player.sendMessage(ChatColor.GREEN + "[MineTail] Вы подтвердили своё согласие на смену класса!");
@@ -62,7 +63,7 @@ public class ConfirmClassChange extends StringPrompt {
     }
 
     String isHaveMoney() {
-        return MineTail.getEcon().has(offlinePlayer, 10000) ? "<green>✓</green>" : "<red>Вам не хватает " + (10000 - (int) MineTail.getEcon().getBalance(offlinePlayer)) + " драгоценностей!</red>";
+        return Economy.has(offlinePlayer, 10000) ? "<green>✓</green>" : "<red>Вам не хватает " + (10000 - (int) Economy.getBalance(offlinePlayer)) + " драгоценностей!</red>";
     }
 
     String isHaveMagicLevel() {
