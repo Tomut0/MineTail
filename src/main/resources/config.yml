@@ -1,42 +1,64 @@
+#
+#   GENERAL SETTINGS
+#
+
 debug: false
 
 # The minetail's config file
 DataSource:
   # What type of database do you want to use?
   # Available values: SQLITE, MYSQL.
-  backend: SQLITE
+  backend: MYSQL
   # Database host address
   mySQLHost: localhost
   # Database port
   mySQLPort: '3306'
   # Username to connect to the MySQL database
-  mySQLUsername: ''
+  mySQLUsername: 'minecraft'
   # Password to connect to the MySQL database
-  mySQLPassword: ''
+  mySQLPassword: 'E7BnEjOEcM7F'
   # Database Name
-  mySQLDatabase: ''
+  mySQLDatabase: 's15_fairy'
+
+#
+#   AUTH SERVER SETTINGS
+#
+
+# Fairy Tail server settings
+host: "localhost"
+port: 25562
+maintenance: false
 
 # Default settings for Mage when player register
 magicLevel: 1
 
-# Fairy Tail server settings
-host: "135.181.235.114"
-port: 25562
-maintenance: false
-
+#
+#   FAIRYTALE SERVER SETTINGS
+#
 
 # BossBar on spell disappear time (in seconds)
 # Set it on 0 or -1 to disable disappear
 disappearTime: 3
+bossBarDefaultColor: PINK
 
-# GUIs
+Conversations:
+  ChangeClass:
+    - "Внимание!"
+    - "Вы действительно хотите сменить свой класс?"
+    - "Сбросив класс на 20 уровне, вы повышаете шанс выбить более лучший набор."
+    - "Требования:"
+    - "- 10 уровень"
+    - "- 10000 драгоценностей"
+    - "Введите в чат: Да / Нет"
+
+# GUIs (works only on Auth server)
 GUI:
   register:
     title: "Регистрация | Выбор класса"
     format:
     - "   s k   "
     items:
-      holding_magic:
+      HOLDING_MAGIC:
         material: DIAMOND_SWORD
         key: s
         lore:
@@ -45,7 +67,7 @@ GUI:
           - Этот тип магии требует,
           - чтобы Волшебник использовал
           - внешний источник для создания Волшебной силы.
-      caster_magic:
+      CASTER_MAGIC:
         material: DIAMOND_AXE
         key: k
         lore:

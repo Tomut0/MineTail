@@ -4,7 +4,6 @@ version: ${project.version}
 api-version: 1.16
 main: ru.minat0.minetail.MineTail
 softdepend:
-  - "DiscordSRV"
   - "AuthMe"
   - "MagicSpells"
   - "CMI"
@@ -16,10 +15,10 @@ commands:
     aliases:
       - mt
 permissions:
-  minetail.help:
-    description: Получение списка команд плагина.
-  minetail.register:
+  minetail.player.register:
     description: Регистрация на сервере. Производится один раз при заходе на сервер.
-  minetail.reload:
+  minetail.admin.config:
     description: Перезагрузить конфигурацию плагина.
+  minetail.admin.change.class:
+    description: Сменить магический класс игроку.
 

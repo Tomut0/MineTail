@@ -1,38 +1,33 @@
 package ru.minat0.minetail.data.inventories;
 
-import de.themoep.inventorygui.InventoryGui;
 import de.themoep.inventorygui.StaticGuiElement;
+import me.clip.placeholderapi.PlaceholderAPI;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import ru.minat0.minetail.MineTail;
-import ru.minat0.minetail.commands.Register;
 import ru.minat0.minetail.data.Mage;
 import ru.minat0.minetail.utils.ErrorsUtil;
 
-public class RegisterInventory {
-    private final MineTail plugin = MineTail.getInstance();
-    private final FileConfiguration config = plugin.getConfig();
-
-    public InventoryGui gui = new InventoryGui(plugin, null, this.getInventoryTitle(), this.getInventoryFormat());
-
+public class RegisterInventory extends Inventory {
     private final Player sender;
 
-    public RegisterInventory(Register register) {
-        this.sender = (Player) register.getCommandSender();
+    public RegisterInventory(Player player) {
+        this.sender = player;
 
-        gui.setFiller(new ItemStack(Material.GRAY_STAINED_GLASS_PANE, 1));
+        getGUI().setFiller(new ItemStack(Material.GRAY_STAINED_GLASS_PANE, 1));
         addGUIElements();
     }
 
-    private void addGUIElements() {
-        String path = "GUI.register.items.";
-
+    @Override
+    public void addGUIElements() {
         for (Mage.MAGIC_CLASS magic_class : Mage.MAGIC_CLASS.values()) {
-            ConfigurationSection configurationSection = config.getConfigurationSection(path + magic_class.name());
+            String path = "GUI.register.items." + magic_class.name();
+
+            ConfigurationSection configurationSection = config.getConfigurationSection(path);
 
             if (configurationSection != null) {
                 String materialName = configurationSection.getString("material");
@@ -42,28 +37,48 @@ public class RegisterInventory {
                     String letter = configurationSection.getString("key");
 
                     if (material != null && letter != null) {
-                        gui.addElement(new StaticGuiElement(letter.charAt(0),
-                                new ItemStack(material), click -> insertAndTeleport(sender, magic_class.name()),
+                        getGUI().addElement(new StaticGuiElement(letter.charAt(0),
+                                new ItemStack(material), click -> registerAndTeleport(sender, magic_class.name()),
                                 configurationSection.getStringList("lore").stream().map(String ->
-                                        ChatColor.translateAlternateColorCodes('&', String)).toArray(String[]::new)));
+                                        ChatColor.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(sender, String))).toArray(String[]::new)));
                     }
                 }
             } else ErrorsUtil.error("Error occurred when trying to find configuration section: " + path);
         }
     }
 
-    boolean insertAndTeleport(Player player, String magicClass) {
-        MineTail.getDatabaseManager().insert(new Mage(player, config.getInt("magicLevel"), null, magicClass, "PINK"));
-        gui.close();
-        MineTail.getServerManager().teleportToServer(player, "fairy");
-        return true;
+    boolean registerAndTeleport(Player player, String magicClass) {
+        boolean mageIsRegistered = MineTail.getDatabaseManager().getMages().stream().anyMatch(mage -> mage.getUniqueId().equals(player.getUniqueId()));
+
+        if (mageIsRegistered) {
+            MineTail.getServerManager().teleportToServer(player, "fairy");
+        } else {
+            Mage mage = new Mage(player.getUniqueId(), config.getInt("magicLevel"), null, magicClass, config.getString("bossBarDefaultColor", "PINK"));
+            MineTail.getDatabaseManager().insert(mage);
+            getGUI().close();
+            MineTail.getServerManager().sendForwardMage(player, "fairy", "DatabaseChannel", "MageSetInsert", mage);
+            MineTail.getServerManager().teleportToServer(player, "fairy");
+            return true;
+        }
+        return false;
     }
 
-    String getInventoryTitle() {
-        return config.getString("GUI.register.title", "null");
+    @Override
+    public String getInventoryTitle() {
+        String title = config.getString("GUI.register.title");
+        if (title != null) {
+            return ChatColor.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(sender, title));
+        }
+        return "Регистрация";
     }
 
-    String[] getInventoryFormat() {
+    @Override
+    public InventoryHolder getInventoryOwner() {
+        return null;
+    }
+
+    @Override
+    public String[] getInventoryFormat() {
         return config.getStringList("GUI.register.format").toArray(new String[0]);
     }
 }
