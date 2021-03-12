@@ -26,6 +26,8 @@ public class ConfirmClassChange extends StringPrompt {
     private final OfflinePlayer offlinePlayer;
     private final Mage mage;
 
+    private final int PRICE = 10000;
+
     public ConfirmClassChange(UUID uuid) {
         this.player = Bukkit.getPlayer(uuid);
         this.offlinePlayer = Bukkit.getOfflinePlayer(uuid);
@@ -49,13 +51,15 @@ public class ConfirmClassChange extends StringPrompt {
     public Prompt acceptInput(@NotNull ConversationContext conversationContext, @Nullable String input) {
         if (input != null && input.equalsIgnoreCase("Да")) {
             if (mage != null) {
-                if (Economy.has(offlinePlayer, 10000) && mage.getMagicLevel() >= 10) {
+                if (Economy.has(offlinePlayer, PRICE) && mage.getMagicLevel() >= 10) {
                     MineTail.getDatabaseManager().delete(mage);
+                    Economy.withdrawPlayer(offlinePlayer, PRICE);
+                    mage.setMagicLevel(1);
                     MineTail.getServerManager().sendForwardMage(player, "lobby", "DatabaseChannel", "MageSetDelete", mage);
-                    player.sendMessage(ChatColor.GREEN + "[MineTail] Вы подтвердили своё согласие на смену класса!");
+                    mage.sendMessage(ChatColor.GREEN + "[MineTail] Вы подтвердили своё согласие на смену класса!");
                     MineTail.getServerManager().teleportToServer(player, "lobby");
                 } else {
-                    player.sendMessage(ChatColor.DARK_RED + "[MineTail] Вы не удовлетворяете требованиям!");
+                    mage.sendMessage(ChatColor.DARK_RED + "[MineTail] Вы не удовлетворяете требованиям!");
                 }
             }
         }
@@ -63,7 +67,7 @@ public class ConfirmClassChange extends StringPrompt {
     }
 
     String isHaveMoney() {
-        return Economy.has(offlinePlayer, 10000) ? "<green>✓</green>" : "<red>Вам не хватает " + (10000 - (int) Economy.getBalance(offlinePlayer)) + " драгоценностей!</red>";
+        return Economy.has(offlinePlayer, PRICE) ? "<green>✓</green>" : "<red>Вам не хватает " + (PRICE - (int) Economy.getBalance(offlinePlayer)) + " драгоценностей!</red>";
     }
 
     String isHaveMagicLevel() {

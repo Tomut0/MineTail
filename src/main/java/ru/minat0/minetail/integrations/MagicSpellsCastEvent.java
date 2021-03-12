@@ -8,6 +8,8 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.scheduler.BukkitRunnable;
 import ru.minat0.minetail.MineTail;
+import ru.minat0.minetail.data.Mage;
+import ru.minat0.minetail.data.ManaBarAppearTime;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -18,10 +20,10 @@ public class MagicSpellsCastEvent implements Listener {
 
     @EventHandler
     public void castEvent(SpellCastEvent event) {
-        FileConfiguration config = MineTail.getConfiguration().getConfig();
-
         Player player = (Player) event.getCaster();
-        if (player == null) return;
+        Mage mage = MineTail.getDatabaseManager().getMage(player.getUniqueId());
+
+        FileConfiguration config = MineTail.getConfiguration().getConfig();
 
         int cooldown = (int) event.getSpell().getCooldown(player);
         if (cooldown > 0) return;
@@ -48,7 +50,7 @@ public class MagicSpellsCastEvent implements Listener {
             }.runTaskTimer(plugin, 0, 20L);
         }
 
-        remainingTimer.put(player, config.getInt("disappearTime", 3));
+        remainingTimer.put(player, mage != null ? ManaBarAppearTime.valueOf(mage.getManaBarAppearTime()).getTime() : config.getInt("disappearTime", 3));
     }
 
     void decreaseRemainingTimer(Map<Player, Integer> remainingTimer, Player player) {

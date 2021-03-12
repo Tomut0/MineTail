@@ -7,6 +7,7 @@ softdepend:
   - "AuthMe"
   - "MagicSpells"
   - "CMI"
+  - "Vault"
   - "MythicMobs"
   - "PlaceholderAPI"
 commands:
@@ -15,10 +16,24 @@ commands:
     aliases:
       - mt
 permissions:
+  minetail.admin.*:
+    description: Привелегии администратора.
+    default: op
+    children:
+      minetail.admin.config: true
+      minetail.admin.change.class: true
   minetail.player.register:
+    default: true
     description: Регистрация на сервере. Производится один раз при заходе на сервер.
   minetail.admin.config:
+    default: op
     description: Перезагрузить конфигурацию плагина.
   minetail.admin.change.class:
+    default: op
     description: Сменить магический класс игроку.
-
+  minetail.admin.change.manabar:
+    default: op
+    description: Сменить отображаемый цвет маны игроку.
+  minetail.admin.level:
+    default: op
+    description: Сменить магический уровень игроку.

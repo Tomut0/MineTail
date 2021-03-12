@@ -10,6 +10,7 @@ import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import ru.minat0.minetail.MineTail;
 import ru.minat0.minetail.data.Mage;
+import ru.minat0.minetail.data.ManaBarAppearTime;
 import ru.minat0.minetail.utils.ErrorsUtil;
 
 public class RegisterInventory extends Inventory {
@@ -52,8 +53,9 @@ public class RegisterInventory extends Inventory {
 
         if (mageIsRegistered) {
             MineTail.getServerManager().teleportToServer(player, "fairy");
+            getGUI().close();
         } else {
-            Mage mage = new Mage(player.getUniqueId(), config.getInt("magicLevel"), null, magicClass, config.getString("bossBarDefaultColor", "PINK"));
+            Mage mage = new Mage(player.getUniqueId(), config.getInt("magicLevel"), null, magicClass, config.getString("bossBarDefaultColor", "PINK"), ManaBarAppearTime.MEDIUM.name());
             MineTail.getDatabaseManager().insert(mage);
             getGUI().close();
             MineTail.getServerManager().sendForwardMage(player, "fairy", "DatabaseChannel", "MageSetInsert", mage);

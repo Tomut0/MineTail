@@ -8,7 +8,6 @@ import org.bukkit.boss.BossBar;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.reflections.Reflections;
-import ru.minat0.minetail.data.MineTailCommand;
 import ru.minat0.minetail.integrations.AuthMeLoginEvent;
 import ru.minat0.minetail.integrations.MagicSpellsCastEvent;
 import ru.minat0.minetail.listeners.PluginMessage;
@@ -55,7 +54,7 @@ public class MineTail extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        // TODO: Save data from Set<Mage> to Database
+        MineTail.getDatabaseManager().update(MineTail.getDatabaseManager().getMages());
     }
 
     private void registerManagers() {
@@ -70,6 +69,7 @@ public class MineTail extends JavaPlugin {
         databaseManager = new DatabaseManager();
         databaseManager.setup();
         databaseManager.loadDataToMemory();
+
     }
 
     private void setupEconomy() {
@@ -85,7 +85,7 @@ public class MineTail extends JavaPlugin {
         } else {
             Reflections reflections = new Reflections("ru.minat0.minetail.events");
             Set<Class<? extends Listener>> listeners = reflections.getSubTypesOf(Listener.class);
-            ErrorsUtil.debug("Listener Reflections: " + listeners.toString(), true);
+            ErrorsUtil.debug("Registered events: " + listeners.toString(), true);
 
             for (Class<? extends Listener> c : listeners) {
                 try {
