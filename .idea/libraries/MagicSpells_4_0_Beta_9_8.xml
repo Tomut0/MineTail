@@ -2,6 +2,7 @@
   <library name="MagicSpells-4.0-Beta-9-8">
     <CLASSES>
       <root url="jar://$USER_HOME$/Desktop/backups/MagicSpells-4.0-Beta-9-8.jar!/" />
+      <root url="jar://D:/Downloads/CMIAPI7.6.2.0.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />

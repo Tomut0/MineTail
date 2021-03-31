@@ -1,6 +1,12 @@
 package ru.minat0.minetail.integrations;
 
 import com.nisovin.magicspells.events.SpellCastEvent;
+import com.sk89q.worldguard.LocalPlayer;
+import com.sk89q.worldguard.WorldGuard;
+import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
+import com.sk89q.worldguard.protection.regions.RegionContainer;
+import com.sk89q.worldguard.protection.regions.RegionQuery;
+import org.bukkit.ChatColor;
 import org.bukkit.boss.BossBar;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
@@ -10,6 +16,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import ru.minat0.minetail.MineTail;
 import ru.minat0.minetail.data.Mage;
 import ru.minat0.minetail.data.ManaBarAppearTime;
+import ru.minat0.minetail.integrations.worldguard.Flags;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -21,6 +28,16 @@ public class MagicSpellsCastEvent implements Listener {
     @EventHandler
     public void castEvent(SpellCastEvent event) {
         Player player = (Player) event.getCaster();
+        LocalPlayer localPlayer = WorldGuardPlugin.inst().wrapPlayer(player);
+        RegionContainer container = WorldGuard.getInstance().getPlatform().getRegionContainer();
+        RegionQuery query = container.createQuery();
+        //Collection<String> greetings = query.queryAllValues(localPlayer.getLocation(), localPlayer, );
+
+//        if (!query.testState(localPlayer.getLocation(), localPlayer, Flags.SPELL_USAGE.getType())) {
+//            player.sendMessage(ChatColor.DARK_RED + "Вы не можете использовать магию здесь!");
+//            event.setCancelled(true);
+//        }
+
         Mage mage = MineTail.getDatabaseManager().getMage(player.getUniqueId());
 
         FileConfiguration config = MineTail.getConfiguration().getConfig();
@@ -30,10 +47,11 @@ public class MagicSpellsCastEvent implements Listener {
 
         if (!remainingTimer.containsKey(player)) {
             MineTail plugin = MineTail.getInstance();
-
             BossBar manaBar = plugin.getManaBars().get(player.getUniqueId());
-            manaBar.addPlayer(player);
 
+            if (manaBar == null) return;
+
+            manaBar.addPlayer(player);
             new BukkitRunnable() {
                 @Override
                 public void run() {

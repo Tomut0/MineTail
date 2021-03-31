@@ -13,8 +13,8 @@ import org.bukkit.plugin.Plugin;
 import ru.minat0.minetail.conversation.TailConversation;
 import ru.minat0.minetail.conversation.prompts.ConfirmClassChange;
 import ru.minat0.minetail.data.Mage;
-import ru.minat0.minetail.data.Mage.MAGIC_CLASS;
 import ru.minat0.minetail.data.ManaBarAppearTime;
+import ru.minat0.minetail.data.RandomKit;
 import ru.minat0.minetail.data.inventories.RegisterInventory;
 
 @SuppressWarnings("ALL")
@@ -34,6 +34,10 @@ public class MineTailCommand extends BaseCommand {
         @Subcommand("config|cfg")
         public void onConfig(CommandSender sender) {
             MineTail.getConfiguration().reloadConfig();
+
+            RandomKit.randomKits.clear();
+            RandomKit.loadKits();
+
             sender.sendMessage(ChatColor.GREEN + "[MineTail] Конфигурация была успешно перезагружена!");
         }
 
@@ -59,20 +63,24 @@ public class MineTailCommand extends BaseCommand {
         @Description("Сбросить магический класс игрока.")
         @CommandCompletion("@players holding_magic|caster_magic")
         @CommandPermission("minetail.admin.change.class")
-        @Subcommand("class|c set")
-        public void onAdminClassChange(CommandSender sender, @Name("игрок") OnlinePlayer target, @Name("класс") String MagicClass) {
+        @Subcommand("class reset|c reset")
+        public void onAdminClassChange(CommandSender sender, @Name("игрок") OnlinePlayer target) {
             Mage mage = MineTail.getDatabaseManager().getMage(target.getPlayer().getUniqueId());
             if (mage == null) return;
 
-            for (MAGIC_CLASS magic_class : MAGIC_CLASS.values()) {
-                if (magic_class.name().equalsIgnoreCase(MagicClass)) {
-                    MineTail.getDatabaseManager().delete(mage);
-                    mage.changed = true;
-                    MineTail.getServerManager().sendForwardMage(target.getPlayer(), "lobby", "DatabaseChannel", "MageSetDelete", mage);
-                    sender.sendMessage(ChatColor.GREEN + "[MineTail] Вы сбросили магический класс игрока " + mage.getName() + "!");
-                    MineTail.getServerManager().teleportToServer(target.getPlayer(), "lobby");
-                }
-            }
+            // Delete from DB
+            MineTail.getDatabaseManager().delete(mage);
+
+            // Svae on server restart
+            mage.changed = true;
+
+            // Delete Mage from lobby Mages()
+            MineTail.getServerManager().sendForwardMage(target.getPlayer(), "lobby", "DatabaseChannel", "MageSetDelete", mage);
+            sender.sendMessage(ChatColor.GREEN + "[MineTail] Вы сбросили магический класс игрока " + mage.getName() + "!");
+
+            // Delete from Set
+            MineTail.getDatabaseManager().getMages().remove(mage);
+            MineTail.getServerManager().teleportToServer(target.getPlayer(), "lobby");
         }
 
         @Subcommand("manabar|mb color")

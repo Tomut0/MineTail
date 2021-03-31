@@ -4,10 +4,13 @@ import co.aikar.commands.PaperCommandManager;
 import com.Zrips.CMI.CMI;
 import com.nisovin.magicspells.MagicSpells;
 import com.nisovin.magicspells.mana.ManaHandler;
+import org.bukkit.Bukkit;
 import org.bukkit.boss.BossBar;
 import org.bukkit.event.Listener;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.reflections.Reflections;
+import ru.minat0.minetail.data.RandomKit;
 import ru.minat0.minetail.integrations.AuthMeLoginEvent;
 import ru.minat0.minetail.integrations.MagicSpellsCastEvent;
 import ru.minat0.minetail.listeners.PluginMessage;
@@ -36,7 +39,14 @@ public class MineTail extends JavaPlugin {
     private ManaHandler manaHandler;
 
     @Override
+    public void onLoad() {
+//        Flags.init();
+    }
+
+    @Override
     public void onEnable() {
+        registerDependencies("MagicSpells", "PlaceholderAPI", "WorldGuard");
+
         instance = this;
 
         getServer().getMessenger().registerOutgoingPluginChannel(instance, "BungeeCord");
@@ -57,6 +67,16 @@ public class MineTail extends JavaPlugin {
         MineTail.getDatabaseManager().update(MineTail.getDatabaseManager().getMages());
     }
 
+    private void registerDependencies(String... plugins) {
+        for (String pluginName : plugins) {
+            Plugin plugin = Bukkit.getPluginManager().getPlugin(pluginName);
+            if (plugin == null) {
+                ErrorsUtil.error(pluginName + " dependency has not found. Disabling...");
+                Bukkit.getPluginManager().disablePlugin(this);
+            }
+        }
+    }
+
     private void registerManagers() {
         configManager = new ConfigManager(this, this.getDataFolder(), "config", true, true);
         configManager.reloadConfig();
@@ -70,6 +90,7 @@ public class MineTail extends JavaPlugin {
         databaseManager.setup();
         databaseManager.loadDataToMemory();
 
+        RandomKit.loadKits();
     }
 
     private void setupEconomy() {

@@ -7,6 +7,7 @@ import org.jetbrains.annotations.Nullable;
 import ru.minat0.minetail.MineTail;
 import ru.minat0.minetail.data.Mage;
 import ru.minat0.minetail.utils.ErrorsUtil;
+import ru.minat0.minetail.utils.StringBuilderUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -39,6 +40,7 @@ public class DatabaseManager {
                     + "magicClass varchar(16) NULL,"
                     + "manaBarColor varchar(16) NOT NULL,"
                     + "manaBarAppearTime varchar(16) NOT NULL,"
+                    + "Spells varchar(255) NOT NULL,"
                     + "PRIMARY KEY ( uuid ));"
             );
         } catch (SQLException ex) {
@@ -79,6 +81,7 @@ public class DatabaseManager {
             ds.addDataSourceProperty("cachePrepStmts", "true");
             ds.addDataSourceProperty("prepStmtCacheSize", "250");
             ds.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
+            ds.setIdleTimeout(1800000);
 
             try {
                 connection = ds.getConnection();
@@ -109,7 +112,7 @@ public class DatabaseManager {
     public void update(@NotNull Mage mage) {
         String uuid = mage.getUniqueId().toString();
 
-        String update = "UPDATE minetail_players SET name=?, magicLevel=?, rank=?, magicClass=?, manaBarColor=?, manaBarAppearTime=? WHERE uuid=?;";
+        String update = "UPDATE minetail_players SET name=?, magicLevel=?, rank=?, magicClass=?, manaBarColor=?, manaBarAppearTime=?, Spells=? WHERE uuid=?;";
         try (PreparedStatement statement = getConnection().prepareStatement(update)) {
             statement.setString(1, mage.getName());
             statement.setInt(2, mage.getMagicLevel());
@@ -117,7 +120,8 @@ public class DatabaseManager {
             statement.setString(4, mage.getMagicClass());
             statement.setString(5, mage.getManaBarColor());
             statement.setString(6, mage.getManaBarAppearTime());
-            statement.setString(7, uuid);
+            statement.setString(7, StringBuilderUtils.serialize(mage.getSpells()));
+            statement.setString(8, uuid);
 
             statement.execute();
         } catch (SQLException ex) {
@@ -127,7 +131,7 @@ public class DatabaseManager {
 
 
     public void update(@NotNull Set<Mage> mageSet) {
-        String update = "UPDATE minetail_players SET name=?, magicLevel=?, rank=?, magicClass=?, manaBarColor=?, manaBarAppearTime=? WHERE uuid=?;";
+        String update = "UPDATE minetail_players SET name=?, magicLevel=?, rank=?, magicClass=?, manaBarColor=?, manaBarAppearTime=?, Spells=? WHERE uuid=?;";
         ErrorsUtil.debug("Mages: " + mageSet.size(), false);
         for (Mage mage : mageSet) {
             if (mage.changed) {
@@ -140,7 +144,8 @@ public class DatabaseManager {
                     statement.setString(4, mage.getMagicClass());
                     statement.setString(5, mage.getManaBarColor());
                     statement.setString(6, mage.getManaBarAppearTime());
-                    statement.setString(7, uuid);
+                    statement.setString(7, StringBuilderUtils.serialize(mage.getSpells()));
+                    statement.setString(8, uuid);
                     statement.execute();
                 } catch (SQLException ex) {
                     ErrorsUtil.error("An error occurred while trying to update the set of players data! " + ex.getMessage());
@@ -164,7 +169,7 @@ public class DatabaseManager {
     public void insert(@NotNull Mage mage) {
         String uuid = mage.getUniqueId().toString();
 
-        String insert = "INSERT INTO minetail_players (uuid, name, magicLevel, rank, magicClass, manaBarColor, manaBarAppearTime) VALUES (?, ?, ?, ?, ?, ?, ?);";
+        String insert = "INSERT INTO minetail_players (uuid, name, magicLevel, rank, magicClass, manaBarColor, manaBarAppearTime, Spells) VALUES (?, ?, ?, ?, ?, ?, ?, ?);";
         try (PreparedStatement statement = getConnection().prepareStatement(insert)) {
             statement.setString(1, uuid);
             statement.setString(2, mage.getName());
@@ -173,7 +178,7 @@ public class DatabaseManager {
             statement.setString(5, mage.getMagicClass());
             statement.setString(6, mage.getManaBarColor());
             statement.setString(7, mage.getManaBarAppearTime());
-
+            statement.setString(8, StringBuilderUtils.serialize(mage.getSpells()));
             statement.execute();
             mages.add(mage);
         } catch (SQLException ex) {
@@ -193,8 +198,9 @@ public class DatabaseManager {
                 String magicClass = rs.getString("magicClass");
                 String manaBarColor = rs.getString("manaBarColor");
                 String manaBarAppearTime = rs.getString("manaBarAppearTime");
+                String[] Spells = StringBuilderUtils.unserialize(rs.getString("Spells"));
 
-                Mage mage = new Mage(uuid, magicLevel, rank, magicClass, manaBarColor, manaBarAppearTime);
+                Mage mage = new Mage(uuid, magicLevel, rank, magicClass, manaBarColor, manaBarAppearTime, Spells);
                 mages.add(mage);
             }
         } catch (SQLException ex) {

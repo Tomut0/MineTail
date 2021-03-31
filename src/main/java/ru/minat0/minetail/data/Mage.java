@@ -13,7 +13,7 @@ import java.util.UUID;
  * @author Minat0_
  * I'd seen example from RoinujNosde Warrior's class.
  */
-public class Mage implements Serializable{
+public class Mage implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private final UUID uuid;
@@ -22,16 +22,18 @@ public class Mage implements Serializable{
     private String magicClass;
     private String manaBarColor;
     private String manaBarAppearTime;
+    private String[] spells;
 
     public boolean changed = false;
 
-    public Mage(@NotNull UUID uuid, Integer magicLevel, @Nullable String rank, @Nullable String magicClass, String manaBarColor, String manaBarAppearTime) {
+    public Mage(@NotNull UUID uuid, Integer magicLevel, @Nullable String rank, @Nullable String magicClass, String manaBarColor, String manaBarAppearTime, @Nullable String[] Spells) {
         this.uuid = uuid;
         this.rank = rank;
         this.magicLevel = magicLevel;
         this.magicClass = magicClass;
         this.manaBarColor = manaBarColor;
         this.manaBarAppearTime = manaBarAppearTime;
+        this.spells = Spells;
     }
 
     public enum MAGIC_CLASS {
@@ -136,5 +138,13 @@ public class Mage implements Serializable{
 
     public void setManaBarAppearTime(String manaBarAppearTime) {
         this.manaBarAppearTime = manaBarAppearTime;
+    }
+
+    public String[] getSpells() {
+        return spells;
+    }
+
+    public void setSpells(String[] spells) {
+        this.spells = spells;
     }
 }

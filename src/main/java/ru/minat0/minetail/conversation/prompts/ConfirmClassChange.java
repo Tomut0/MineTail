@@ -8,7 +8,6 @@ import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.Template;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.conversations.ConversationContext;
 import org.bukkit.conversations.Prompt;
@@ -26,7 +25,7 @@ public class ConfirmClassChange extends StringPrompt {
     private final OfflinePlayer offlinePlayer;
     private final Mage mage;
 
-    private final int PRICE = 10000;
+    private final int PRICE = 2500000;
 
     public ConfirmClassChange(UUID uuid) {
         this.player = Bukkit.getPlayer(uuid);
@@ -38,10 +37,10 @@ public class ConfirmClassChange extends StringPrompt {
     @NotNull
     @Override
     public String getPromptText(@NotNull ConversationContext conversationContext) {
-        final TextComponent textComponent = Component.text().
-                append(MineTail.getConfiguration().getConfig().getStringList("Conversations.ChangeClass").stream().
-                        map(message -> MiniMessage.get().parse(PlaceholderAPI.setPlaceholders(player, message), Template.of("isHaveMoney", isHaveMoney()), Template.of("isHaveMagicLevel", isHaveMagicLevel()))).toArray(Component[]::new)).build();
-
+        final TextComponent textComponent = Component.text().append(MineTail.getConfiguration().getConfig().
+                getStringList("Conversations.ChangeClass").stream().map(message -> MiniMessage.get().parse
+                (PlaceholderAPI.setPlaceholders(player, message), Template.of("isHaveMoney", isHaveMoney()), Template.of("isHaveMagicLevel", isHaveMagicLevel())))
+                .toArray(Component[]::new)).build();
 
         return GsonComponentSerializer.gson().serialize(textComponent);
     }
@@ -55,11 +54,10 @@ public class ConfirmClassChange extends StringPrompt {
                     MineTail.getDatabaseManager().delete(mage);
                     Economy.withdrawPlayer(offlinePlayer, PRICE);
                     mage.setMagicLevel(1);
+                    mage.setSpells(null);
                     MineTail.getServerManager().sendForwardMage(player, "lobby", "DatabaseChannel", "MageSetDelete", mage);
-                    mage.sendMessage(ChatColor.GREEN + "[MineTail] Вы подтвердили своё согласие на смену класса!");
+                    MineTail.getDatabaseManager().getMages().remove(mage);
                     MineTail.getServerManager().teleportToServer(player, "lobby");
-                } else {
-                    mage.sendMessage(ChatColor.DARK_RED + "[MineTail] Вы не удовлетворяете требованиям!");
                 }
             }
         }
