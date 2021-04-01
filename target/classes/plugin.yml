@@ -1,0 +1,67 @@
+##     ## #### ##    ## ######## ########    ###    #### ##
+###   ###  ##  ###   ## ##          ##      ## ##    ##  ##
+#### ####  ##  ####  ## ##          ##     ##   ##   ##  ##
+## ### ##  ##  ## ## ## ######      ##    ##     ##  ##  ##
+##     ##  ##  ##  #### ##          ##    #########  ##  ##
+##     ##  ##  ##   ### ##          ##    ##     ##  ##  ##
+##     ## #### ##    ## ########    ##    ##     ## #### ########
+
+name: MineTail
+author: Minat0_
+website: https://github.com/Tomut0
+version: 1.1.3-SNAPSHOT
+api-version: 1.16
+main: ru.minat0.minetail.core.MineTail
+depend:
+  - "PlaceholderAPI"
+softdepend:
+  - "AuthMe"
+  - "CMI"
+  - "Vault"
+  - "MythicMobs"
+  - "MagicSpells"
+  - "WorldGuard"
+#####
+#     #  ####  #    # #    #   ##   #    # #####   ####
+#       #    # ##  ## ##  ##  #  #  ##   # #    # #
+#       #    # # ## # # ## # #    # # #  # #    #  ####
+#       #    # #    # #    # ###### #  # # #    #      #
+#     # #    # #    # #    # #    # #   ## #    # #    #
+#####   ####  #    # #    # #    # #    # #####   ####
+
+commands:
+  minetail:
+    description: Список главных команд сервера.
+    aliases:
+      - mt
+
+######
+#     # ###### #####  #    # #  ####   ####  #  ####  #    #  ####
+#     # #      #    # ##  ## # #      #      # #    # ##   # #
+######  #####  #    # # ## # #  ####   ####  # #    # # #  #  ####
+#       #      #####  #    # #      #      # # #    # #  # #      #
+#       #      #   #  #    # # #    # #    # # #    # #   ## #    #
+#       ###### #    # #    # #  ####   ####  #  ####  #    #  ####
+
+permissions:
+  minetail.admin.*:
+    description: Привелегии администратора.
+    default: op
+    children:
+      minetail.admin.config: true
+      minetail.admin.change.class: true
+  minetail.player.register:
+    default: true
+    description: Регистрация на сервере. Производится один раз при заходе на сервер.
+  minetail.admin.config:
+    default: op
+    description: Перезагрузить конфигурацию плагина.
+  minetail.admin.change.class:
+    default: op
+    description: Сменить магический класс игроку.
+  minetail.admin.change.manabar:
+    default: op
+    description: Сменить отображаемый цвет маны игроку.
+  minetail.admin.level:
+    default: op
+    description: Сменить магический уровень игроку.
