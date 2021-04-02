@@ -11,17 +11,16 @@ author: Minat0_
 website: https://github.com/Tomut0
 version: ${project.version}
 api-version: 1.16
-main: ru.minat0.minetail.MineTail
+main: ru.minat0.minetail.core.MineTail
 depend:
-  - "MagicSpells"
   - "PlaceholderAPI"
-  - "WorldGuard"
 softdepend:
   - "AuthMe"
   - "CMI"
   - "Vault"
   - "MythicMobs"
-
+  - "MagicSpells"
+  - "WorldGuard"
 #####
 #     #  ####  #    # #    #   ##   #    # #####   ####
 #       #    # ##  ## ##  ##  #  #  ##   # #    # #
@@ -32,7 +31,7 @@ softdepend:
 
 commands:
   minetail:
-    description: Список главных комманд сервера.
+    description: Список главных команд сервера.
     aliases:
       - mt
 

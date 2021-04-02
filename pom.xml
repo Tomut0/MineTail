@@ -64,8 +64,8 @@
     </build>
 
     <properties>
-        <maven.compiler.source>8</maven.compiler.source>
-        <maven.compiler.target>8</maven.compiler.target>
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     </properties>
@@ -244,6 +244,13 @@
             <artifactId>worldguard-bukkit</artifactId>
             <version>7.0.4</version>
             <scope>provided</scope>
+        </dependency>
+
+        <!-- BeautyQuest API -->
+        <dependency>
+            <groupId>fr.skytasul</groupId>
+            <artifactId>beautyquests-core</artifactId>
+            <version>0.18.5</version>
         </dependency>
     </dependencies>
 </project>

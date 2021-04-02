@@ -1,9 +1,0 @@
-<component name="libraryTable">
-  <library name="VentureChat">
-    <CLASSES>
-      <root url="jar://$PROJECT_DIR$/../../../../Purpur-1.16.5/plugins/VentureChat.jar!/" />
-    </CLASSES>
-    <JAVADOC />
-    <SOURCES />
-  </library>
-</component>
