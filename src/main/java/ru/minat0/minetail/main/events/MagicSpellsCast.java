@@ -28,6 +28,8 @@ public class MagicSpellsCast implements Listener {
 
     @EventHandler(ignoreCancelled = true)
     public void castEvent(SpellCastEvent event) {
+        if (PlayerJoin.mage == null) return;
+
         Player player = (Player) event.getCaster();
 
         LocalPlayer localPlayer = WorldGuardPlugin.inst().wrapPlayer(player);
@@ -37,7 +39,7 @@ public class MagicSpellsCast implements Listener {
         Set<String> spellBlackList = query.queryValue(localPlayer.getLocation(), localPlayer, Flags.SPELL_BLACKLIST);
         Set<String> spellWhiteList = query.queryValue(localPlayer.getLocation(), localPlayer, Flags.SPELL_WHITELIST);
 
-        Mage mage = MineTail.getDatabaseManager().getMage(player.getUniqueId());
+        Mage mage = PlayerJoin.mage;
         FileConfiguration config = MineTail.getConfiguration().getConfig();
 
         int cooldown = (int) event.getSpell().getCooldown(player);

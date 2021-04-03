@@ -8,7 +8,9 @@ import ru.minat0.minetail.core.utils.Logger;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class RandomKit {
     public static final Map<Integer, RandomKit> randomKits = new HashMap<>();
@@ -44,24 +46,24 @@ public class RandomKit {
         }
     }
 
-    public static int random(Mage.MAGIC_CLASS magic_class) {
+    public static RandomKit random(Mage.MAGIC_CLASS magic_class) {
         double random = Math.random() * Type.getSumChances();
         double percent = 0;
 
         for (Type type : Type.values()) {
             percent += type.getPercent();
             double spellPercent = type.getPercent() / RandomKit.getCountByRareAndClass(type, magic_class);
+            //Logger.warning(type.name() + ":" + type.getPercent() + " | Кол-во: " + RandomKit.getCountByRareAndClass(type, magic_class) + " | Рандом: " + random + " | Общ. проценты: " + percent);
             if (random <= percent) {
-                Logger.debug(random + "/" + percent, false);
                 for (int i = 1; i <= RandomKit.getCountByRareAndClass(type, magic_class); i++) {
+                    //Logger.warning(spellPercent * i + "");
                     if (random <= spellPercent * i) {
-                        return i;
+                        return RandomKit.get(type.getPercent()).get(i);
                     }
                 }
             }
         }
-
-        return 0;
+        return random(magic_class);
     }
 
     public Type getRare() {
@@ -74,6 +76,10 @@ public class RandomKit {
 
     public static long getCountByRareAndClass(Type type, Mage.MAGIC_CLASS magic_class) {
         return randomKits.values().stream().filter(randomKit -> randomKit.getRare().equals(type) && randomKit.getMagicClass().equals(magic_class)).count();
+    }
+
+    public static List<RandomKit> get(double percent) {
+        return randomKits.values().stream().filter(randomKit -> (randomKit.getRare().getPercent() == percent)).collect(Collectors.toList());
     }
 
     public String[] getSpells() {

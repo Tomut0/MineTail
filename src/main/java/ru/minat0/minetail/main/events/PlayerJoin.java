@@ -11,6 +11,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.scheduler.BukkitRunnable;
 import ru.minat0.minetail.core.Mage;
 import ru.minat0.minetail.core.MineTail;
 import ru.minat0.minetail.core.utils.Logger;
@@ -19,38 +20,53 @@ import java.util.Arrays;
 
 public class PlayerJoin implements Listener {
 
+    int count = 3;
+    public static Mage mage;
+
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
         if (MineTail.getServerManager().isAuthServer()) return;
 
         MineTail plugin = MineTail.getInstance();
         Player player = event.getPlayer();
-        Mage mage = MineTail.getDatabaseManager().getMage(player.getUniqueId());
         Spellbook spellBook = MagicSpells.getSpellbook(player);
 
-        if (mage == null) {
-            Logger.debug("Маг не найден! FORCE DB RELOAD!", false);
-            MineTail.getDatabaseManager().getMages().clear();
-            MineTail.getDatabaseManager().loadDataToMemory();
-            return;
-        }
+        new BukkitRunnable() {
 
-        BarColor barColor = BarColor.valueOf(mage.getManaBarColor());
-        BossBar manaBar = Bukkit.createBossBar("Мана", barColor, BarStyle.SOLID);
-        plugin.getManaBars().put(player.getUniqueId(), manaBar);
+            @Override
+            public void run() {
+                if (mage == null && count >= 0) {
+                    mage = MineTail.getDatabaseManager().getMage(player.getUniqueId());
+                    Logger.debug("Попытка получить мага: " + count, true);
+                    count--;
+                } else if (mage == null) {
+                    Logger.debug("Неуспешно! Force DB updated!", true);
+                    MineTail.getDatabaseManager().getMages().clear();
+                    MineTail.getDatabaseManager().loadDataToMemory();
+                    count = 3;
+                } else {
+                    Logger.debug("Успешно!", true);
 
-        Logger.debug(Arrays.toString(mage.getSpells()), true);
-        Logger.debug(MagicSpells.getSpellNames().toString(), true);
+                    BarColor barColor = BarColor.valueOf(mage.getManaBarColor());
+                    BossBar manaBar = Bukkit.createBossBar("Мана", barColor, BarStyle.SOLID);
+                    plugin.getManaBars().put(player.getUniqueId(), manaBar);
 
-        for (String spellName : mage.getSpells()) {
-            if (spellBook.getSpellByName(spellName) == null) {
-                if (MagicSpells.getSpellNames().get(spellName.toLowerCase()) != null) {
-                    spellBook.addSpell(MagicSpells.getSpellNames().get(spellName.toLowerCase()));
-                    spellBook.save();
-                    player.sendMessage(ChatColor.DARK_GREEN + "Вы выучили заклинание " + spellName);
-                } else
-                    player.sendMessage(ChatColor.DARK_RED + "Невозможно выдать заклинание, которого не существует: " + spellName);
+                    Logger.debug(Arrays.toString(mage.getSpells()), true);
+
+                    for (String spellName : mage.getSpells()) {
+                        if (spellBook.getSpellByName(spellName) == null) {
+                            if (MagicSpells.getSpellNames().get(spellName.toLowerCase()) != null) {
+                                spellBook.addSpell(MagicSpells.getSpellNames().get(spellName.toLowerCase()));
+                                spellBook.save();
+                                player.sendMessage(ChatColor.DARK_GREEN + "Вы выучили заклинание " + spellName);
+                            } else
+                                player.sendMessage(ChatColor.DARK_RED + "Невозможно выдать заклинание, которого не существует: " + spellName);
+                        }
+                    }
+
+                    this.cancel();
+                }
             }
-        }
+        }.runTaskTimer(plugin, 0, 20L);
     }
 }
