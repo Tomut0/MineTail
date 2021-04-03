@@ -1,4 +1,4 @@
-package ru.minat0.minetail.data;
+package ru.minat0.minetail.core;
 
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
@@ -13,7 +13,7 @@ import java.util.UUID;
  * @author Minat0_
  * I'd seen example from RoinujNosde Warrior's class.
  */
-public class Mage implements Serializable{
+public class Mage implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private final UUID uuid;
@@ -21,13 +21,19 @@ public class Mage implements Serializable{
     private String rank;
     private String magicClass;
     private String manaBarColor;
+    private String manaBarAppearTime;
+    private String[] spells;
 
-    public Mage(@NotNull UUID uuid, Integer magicLevel, @Nullable String rank, @Nullable String magicClass, String manaBarColor) {
+    public boolean changed = false;
+
+    public Mage(@NotNull UUID uuid, Integer magicLevel, @Nullable String rank, @Nullable String magicClass, String manaBarColor, String manaBarAppearTime, @Nullable String[] Spells) {
         this.uuid = uuid;
         this.rank = rank;
         this.magicLevel = magicLevel;
         this.magicClass = magicClass;
         this.manaBarColor = manaBarColor;
+        this.manaBarAppearTime = manaBarAppearTime;
+        this.spells = Spells;
     }
 
     public enum MAGIC_CLASS {
@@ -76,9 +82,22 @@ public class Mage implements Serializable{
         return false;
     }
 
-    @NotNull
-    public UUID getUuid() {
-        return uuid;
+    public static byte[] serialize(@NotNull Mage mage) throws IOException {
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        ObjectOutputStream oos = new ObjectOutputStream(bos);
+        oos.writeObject(mage);
+        return bos.toByteArray();
+    }
+
+    public static Mage deserialize(@NotNull byte[] bytes) throws IOException {
+        ByteArrayInputStream bos = new ByteArrayInputStream(bytes);
+        ObjectInputStream ois = new ObjectInputStream(bos);
+        try {
+            return (Mage) ois.readObject();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     public Integer getMagicLevel() {
@@ -113,21 +132,19 @@ public class Mage implements Serializable{
         this.manaBarColor = manaBarColor;
     }
 
-    public static byte[] serialize(@NotNull Mage mage) throws IOException {
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        ObjectOutputStream oos = new ObjectOutputStream(bos);
-        oos.writeObject(mage);
-        return bos.toByteArray();
+    public String getManaBarAppearTime() {
+        return manaBarAppearTime;
     }
 
-    public static Mage deserialize(@NotNull byte[] bytes) throws IOException {
-        ByteArrayInputStream bos = new ByteArrayInputStream(bytes);
-        ObjectInputStream ois = new ObjectInputStream(bos);
-        try {
-            return (Mage) ois.readObject();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-        return null;
+    public void setManaBarAppearTime(String manaBarAppearTime) {
+        this.manaBarAppearTime = manaBarAppearTime;
+    }
+
+    public String[] getSpells() {
+        return spells;
+    }
+
+    public void setSpells(String[] spells) {
+        this.spells = spells;
     }
 }

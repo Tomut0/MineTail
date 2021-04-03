@@ -1,4 +1,4 @@
-package ru.minat0.minetail.integrations;
+package ru.minat0.minetail.auth;
 
 import fr.xephi.authme.events.LoginEvent;
 import net.kyori.adventure.text.Component;
@@ -11,7 +11,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.checkerframework.checker.nullness.qual.NonNull;
-import ru.minat0.minetail.MineTail;
+import ru.minat0.minetail.core.MineTail;
 
 public class AuthMeLoginEvent implements Listener {
     private final MineTail plugin = MineTail.getInstance();

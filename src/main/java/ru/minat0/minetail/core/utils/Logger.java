@@ -1,12 +1,12 @@
-package ru.minat0.minetail.utils;
+package ru.minat0.minetail.core.utils;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import ru.minat0.minetail.MineTail;
+import ru.minat0.minetail.core.MineTail;
 
 import java.util.logging.Level;
 
-public class ErrorsUtil {
+public class Logger {
     public static void error(String message) {
         Bukkit.getLogger().log(Level.SEVERE, "[MineTail] " + message);
     }

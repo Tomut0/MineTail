@@ -1,21 +1,21 @@
-package ru.minat0.minetail;
+package ru.minat0.minetail.core;
 
 import co.aikar.commands.PaperCommandManager;
 import com.Zrips.CMI.CMI;
 import com.nisovin.magicspells.MagicSpells;
 import com.nisovin.magicspells.mana.ManaHandler;
+import org.bukkit.Bukkit;
 import org.bukkit.boss.BossBar;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.reflections.Reflections;
-import ru.minat0.minetail.data.MineTailCommand;
-import ru.minat0.minetail.integrations.AuthMeLoginEvent;
-import ru.minat0.minetail.integrations.MagicSpellsCastEvent;
-import ru.minat0.minetail.listeners.PluginMessage;
-import ru.minat0.minetail.managers.ConfigManager;
-import ru.minat0.minetail.managers.DatabaseManager;
-import ru.minat0.minetail.managers.ServerManager;
-import ru.minat0.minetail.utils.ErrorsUtil;
+import ru.minat0.minetail.auth.AuthMeLoginEvent;
+import ru.minat0.minetail.core.managers.ConfigManager;
+import ru.minat0.minetail.core.managers.DatabaseManager;
+import ru.minat0.minetail.core.managers.ServerManager;
+import ru.minat0.minetail.core.utils.Logger;
+import ru.minat0.minetail.main.RandomKit;
+import ru.minat0.minetail.main.events.MagicSpellsCast;
 
 import java.util.HashMap;
 import java.util.Set;
@@ -37,6 +37,12 @@ public class MineTail extends JavaPlugin {
     private ManaHandler manaHandler;
 
     @Override
+    public void onLoad() {
+        if (Bukkit.getPluginManager().getPlugin("WorldGuard") != null)
+            Flags.registerAll();
+    }
+
+    @Override
     public void onEnable() {
         instance = this;
 
@@ -55,7 +61,7 @@ public class MineTail extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        // TODO: Save data from Set<Mage> to Database
+        MineTail.getDatabaseManager().update(MineTail.getDatabaseManager().getMages());
     }
 
     private void registerManagers() {
@@ -70,12 +76,14 @@ public class MineTail extends JavaPlugin {
         databaseManager = new DatabaseManager();
         databaseManager.setup();
         databaseManager.loadDataToMemory();
+
+        RandomKit.loadKits();
     }
 
     private void setupEconomy() {
         if (getServer().getPluginManager().getPlugin("CMI") == null && CMI.getInstance().getEconomyManager().isEnabled()) {
             getServer().getPluginManager().disablePlugin(instance);
-            ErrorsUtil.error("Error when trying to load CMI Economy. Disable plugin.");
+            Logger.error("Error when trying to load CMI Economy. Disable plugin.");
         }
     }
 
@@ -83,19 +91,19 @@ public class MineTail extends JavaPlugin {
         if (serverManager.isAuthServer()) {
             getServer().getPluginManager().registerEvents(new AuthMeLoginEvent(), this);
         } else {
-            Reflections reflections = new Reflections("ru.minat0.minetail.events");
+            Reflections reflections = new Reflections("ru.minat0.minetail.main.events");
             Set<Class<? extends Listener>> listeners = reflections.getSubTypesOf(Listener.class);
-            ErrorsUtil.debug("Listener Reflections: " + listeners.toString(), true);
+            Logger.debug("Registered events: " + listeners.toString(), true);
 
             for (Class<? extends Listener> c : listeners) {
                 try {
                     getServer().getPluginManager().registerEvents(c.getDeclaredConstructor().newInstance(), this);
                 } catch (Exception ex) {
-                    ErrorsUtil.error("Error registering event: " + ex.getMessage());
+                    Logger.error("Error registering event: " + ex.getMessage());
                 }
             }
 
-            getServer().getPluginManager().registerEvents(new MagicSpellsCastEvent(), this);
+            getServer().getPluginManager().registerEvents(new MagicSpellsCast(), this);
         }
     }
 

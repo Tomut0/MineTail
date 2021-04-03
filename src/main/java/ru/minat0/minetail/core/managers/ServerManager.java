@@ -1,4 +1,4 @@
-package ru.minat0.minetail.managers;
+package ru.minat0.minetail.core.managers;
 
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
@@ -6,9 +6,9 @@ import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ServerInfo;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import ru.minat0.minetail.MineTail;
-import ru.minat0.minetail.data.Mage;
-import ru.minat0.minetail.utils.ErrorsUtil;
+import ru.minat0.minetail.core.Mage;
+import ru.minat0.minetail.core.MineTail;
+import ru.minat0.minetail.core.utils.Logger;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
@@ -69,7 +69,7 @@ public class ServerManager {
             out.writeUTF(serverName);
             player.sendPluginMessage(MineTail.getInstance(), "BungeeCord", b.toByteArray());
         } catch (IOException ex) {
-            ErrorsUtil.error("Не могу перенаправить игрока на сервер: " + ex.getMessage());
+            Logger.error("Не могу перенаправить игрока на сервер: " + ex.getMessage());
         }
     }
 

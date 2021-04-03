@@ -1,9 +1,9 @@
-package ru.minat0.minetail.managers;
+package ru.minat0.minetail.core.managers;
 
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
-import ru.minat0.minetail.MineTail;
+import ru.minat0.minetail.core.MineTail;
 
 import java.io.File;
 

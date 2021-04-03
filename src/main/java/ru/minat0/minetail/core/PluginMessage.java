@@ -1,12 +1,11 @@
-package ru.minat0.minetail.listeners;
+package ru.minat0.minetail.core;
 
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteStreams;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.messaging.PluginMessageListener;
 import org.jetbrains.annotations.NotNull;
-import ru.minat0.minetail.MineTail;
-import ru.minat0.minetail.data.Mage;
+import ru.minat0.minetail.core.utils.Logger;
 
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
@@ -33,9 +32,17 @@ public class PluginMessage implements PluginMessageListener {
                         MineTail.getDatabaseManager().loadDataToMemory();
                         break;
                     case "MageSetInsert":
-                        if (MineTail.getDatabaseManager().getMage(player.getUniqueId()) == null) {
-                            MineTail.getDatabaseManager().getMages().add(Mage.deserialize(msgin.readAllBytes()));
-                        }
+                        Mage deserializedMage = Mage.deserialize(msgin.readAllBytes());
+                        Mage mage = MineTail.getDatabaseManager().getMage(player.getUniqueId());
+
+                        if (deserializedMage != null) {
+                            if (mage != null) {
+                                boolean remove = MineTail.getDatabaseManager().getMages().remove(mage);
+                                Logger.debug("Remove set: " + remove, false);
+                            }
+                            boolean add = MineTail.getDatabaseManager().getMages().add(deserializedMage);
+                            Logger.debug("Add set: " + add, false);
+                        } else Logger.debug("There is no deserialized mage: " + player.getName(), false);
                         break;
                     case "MageSetDelete":
                         if (MineTail.getDatabaseManager().getMage(player.getUniqueId()) != null) {

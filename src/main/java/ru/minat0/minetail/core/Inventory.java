@@ -1,9 +1,8 @@
-package ru.minat0.minetail.data.inventories;
+package ru.minat0.minetail.core;
 
 import de.themoep.inventorygui.InventoryGui;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.inventory.InventoryHolder;
-import ru.minat0.minetail.MineTail;
 
 public abstract class Inventory {
     public final MineTail plugin = MineTail.getInstance();

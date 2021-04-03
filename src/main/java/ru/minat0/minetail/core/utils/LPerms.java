@@ -1,4 +1,4 @@
-package ru.minat0.minetail.utils;
+package ru.minat0.minetail.core.utils;
 
 import net.luckperms.api.LuckPerms;
 import net.luckperms.api.model.group.Group;
@@ -10,8 +10,8 @@ import java.util.Collection;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
-public class LuckPermsUtils {
-    public static LuckPerms getLuckPerms() {
+public class LPerms {
+    public static net.luckperms.api.LuckPerms getLuckPerms() {
         RegisteredServiceProvider<LuckPerms> provider = Bukkit.getServicesManager().getRegistration(LuckPerms.class);
         if (provider != null) {
             return provider.getProvider();

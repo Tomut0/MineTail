@@ -1,4 +1,4 @@
-package ru.minat0.minetail.data.inventories;
+package ru.minat0.minetail.core.inventories;
 
 import de.themoep.inventorygui.StaticGuiElement;
 import me.clip.placeholderapi.PlaceholderAPI;
@@ -8,9 +8,14 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
-import ru.minat0.minetail.MineTail;
-import ru.minat0.minetail.data.Mage;
-import ru.minat0.minetail.utils.ErrorsUtil;
+import ru.minat0.minetail.core.Inventory;
+import ru.minat0.minetail.core.Mage;
+import ru.minat0.minetail.core.ManaBar;
+import ru.minat0.minetail.core.MineTail;
+import ru.minat0.minetail.core.utils.Logger;
+import ru.minat0.minetail.main.RandomKit;
+
+import java.util.Arrays;
 
 public class RegisterInventory extends Inventory {
     private final Player sender;
@@ -38,22 +43,26 @@ public class RegisterInventory extends Inventory {
 
                     if (material != null && letter != null) {
                         getGUI().addElement(new StaticGuiElement(letter.charAt(0),
-                                new ItemStack(material), click -> registerAndTeleport(sender, magic_class.name()),
+                                new ItemStack(material), click -> registerAndTeleport(sender, magic_class),
                                 configurationSection.getStringList("lore").stream().map(String ->
                                         ChatColor.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(sender, String))).toArray(String[]::new)));
                     }
                 }
-            } else ErrorsUtil.error("Error occurred when trying to find configuration section: " + path);
+            } else Logger.error("Error occurred when trying to find configuration section: " + path);
         }
     }
 
-    boolean registerAndTeleport(Player player, String magicClass) {
+    boolean registerAndTeleport(Player player, Mage.MAGIC_CLASS magicClass) {
         boolean mageIsRegistered = MineTail.getDatabaseManager().getMages().stream().anyMatch(mage -> mage.getUniqueId().equals(player.getUniqueId()));
 
         if (mageIsRegistered) {
             MineTail.getServerManager().teleportToServer(player, "fairy");
+            getGUI().close();
         } else {
-            Mage mage = new Mage(player.getUniqueId(), config.getInt("magicLevel"), null, magicClass, config.getString("bossBarDefaultColor", "PINK"));
+            RandomKit randomKit = RandomKit.random(magicClass);
+            Logger.debug(randomKit.getName() + "/" + Arrays.toString(randomKit.getSpells()) + "/" + randomKit.getRare(), false);
+            Mage mage = new Mage(player.getUniqueId(), config.getInt("magicLevel"), null, magicClass.name(),
+                    config.getString("bossBarDefaultColor", "PINK"), ManaBar.MEDIUM.name(), randomKit.getSpells());
             MineTail.getDatabaseManager().insert(mage);
             getGUI().close();
             MineTail.getServerManager().sendForwardMage(player, "fairy", "DatabaseChannel", "MageSetInsert", mage);

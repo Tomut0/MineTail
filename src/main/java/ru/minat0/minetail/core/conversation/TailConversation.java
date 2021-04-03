@@ -1,4 +1,4 @@
-package ru.minat0.minetail.conversation;
+package ru.minat0.minetail.core.conversation;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
