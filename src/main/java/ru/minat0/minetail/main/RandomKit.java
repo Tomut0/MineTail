@@ -6,10 +6,7 @@ import ru.minat0.minetail.core.Mage;
 import ru.minat0.minetail.core.MineTail;
 import ru.minat0.minetail.core.utils.Logger;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class RandomKit {
@@ -20,11 +17,11 @@ public class RandomKit {
     private final String name;
     private final Mage.MAGIC_CLASS magicClass;
 
-    private RandomKit(String Name, String[] Spells, Type Rare, Mage.MAGIC_CLASS magicClass) {
+    public RandomKit(String Name, String[] Spells, Type Rare, Mage.MAGIC_CLASS magic_class) {
         this.name = Name;
         this.spells = Spells;
         this.rare = Rare;
-        this.magicClass = magicClass;
+        magicClass = magic_class;
     }
 
     public static void loadKits() {
@@ -46,24 +43,45 @@ public class RandomKit {
         }
     }
 
-    public static RandomKit random(Mage.MAGIC_CLASS magic_class) {
-        double random = Math.random() * Type.getSumChances();
-        double percent = 0;
+/*    @Nullable
+    public static String getKitNameFromSpells(List<String> spellList) {
+        FileConfiguration config = MineTail.getConfiguration().getConfig();
 
         for (Type type : Type.values()) {
-            percent += type.getPercent();
-            double spellPercent = type.getPercent() / RandomKit.getCountByRareAndClass(type, magic_class);
-            //Logger.warning(type.name() + ":" + type.getPercent() + " | Кол-во: " + RandomKit.getCountByRareAndClass(type, magic_class) + " | Рандом: " + random + " | Общ. проценты: " + percent);
-            if (random <= percent) {
-                for (int i = 1; i <= RandomKit.getCountByRareAndClass(type, magic_class); i++) {
-                    //Logger.warning(spellPercent * i + "");
-                    if (random <= spellPercent * i) {
-                        return RandomKit.get(type.getPercent()).get(i);
-                    }
+            String path = "Kits." + magicClass.name() + "." + type.name();
+            ConfigurationSection configurationSection = config.getConfigurationSection(path);
+
+            if (configurationSection != null) {
+                for (String key : configurationSection.getKeys(false)) {
+                    if (config.getStringList(path + "." + key).equals(spellList)) return key;
                 }
             }
         }
-        return random(magic_class);
+
+        return null;
+    }*/
+
+    public static int random(Mage.MAGIC_CLASS magic_class) {
+        double random = Math.random() * Type.getSumChances();
+        int count = 0;
+
+        for (Type type : Type.values()) {
+            double spellPercent = type.getPercent() / RandomKit.getCountByRareAndClass(type, magic_class);
+            Logger.debug(random + " | " + type.getPercent() + " | " + spellPercent + " | " +  RandomKit.getCountByRareAndClass(type, magic_class), true);
+            if (random <= type.getPercent()) {
+                for (int i = 0; i < RandomKit.getCountByRareAndClass(type, magic_class); i++) {
+                    Logger.debug((spellPercent * (i+1)) + "", true);
+                    if (random <= spellPercent * (i+1)) {
+                        return (count+i);
+                    }
+                }
+            } else {
+                random -= type.getPercent();
+                count += RandomKit.getCountByRareAndClass(type, magic_class);
+            }
+        }
+
+        return 0;
     }
 
     public Type getRare() {
@@ -78,8 +96,8 @@ public class RandomKit {
         return randomKits.values().stream().filter(randomKit -> randomKit.getRare().equals(type) && randomKit.getMagicClass().equals(magic_class)).count();
     }
 
-    public static List<RandomKit> get(double percent) {
-        return randomKits.values().stream().filter(randomKit -> (randomKit.getRare().getPercent() == percent)).collect(Collectors.toList());
+    public static List<RandomKit> getSorted(Mage.MAGIC_CLASS magic_class) {
+        return randomKits.values().stream().sorted(Comparator.comparing(randomKit -> randomKit.getMagicClass().name())).filter(randomKit -> randomKit.getMagicClass().equals(magic_class)).collect(Collectors.toList());
     }
 
     public String[] getSpells() {
@@ -90,7 +108,7 @@ public class RandomKit {
         return magicClass;
     }
 
-    enum Type {
+    public enum Type {
         LEGENDARY(1),
         MYTHICAL(4),
         RESTRICTED(15),
@@ -107,7 +125,7 @@ public class RandomKit {
             return percent;
         }
 
-        private static double getSumChances() {
+        public static double getSumChances() {
             return Arrays.stream(Type.values()).mapToDouble(Type::getPercent).sum();
         }
     }

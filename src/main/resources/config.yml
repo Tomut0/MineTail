@@ -28,6 +28,8 @@ DataSource:
 host: "localhost"
 port: 25562
 maintenance: false
+maintenancebypass:
+  - "Minat0_"
 
 # Default settings for Mage when player register
 magicLevel: 1

@@ -126,4 +126,15 @@ public class MineTail extends JavaPlugin {
     public ManaHandler getManaHandler() {
         return manaHandler;
     }
+
+    public String getMaintenance(String playerName) {
+        if (configManager.getConfig().getBoolean("maintenance")) {
+            if (!configManager.getConfig().getStringList("maintenancebypass").isEmpty()
+                    && configManager.getConfig().getStringList("maintenancebypass").contains(playerName)) {
+                return "test";
+            }
+        }
+
+        return "fairy";
+    }
 }

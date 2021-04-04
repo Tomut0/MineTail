@@ -15,8 +15,6 @@ import ru.minat0.minetail.core.MineTail;
 import ru.minat0.minetail.core.utils.Logger;
 import ru.minat0.minetail.main.RandomKit;
 
-import java.util.Arrays;
-
 public class RegisterInventory extends Inventory {
     private final Player sender;
 
@@ -56,17 +54,17 @@ public class RegisterInventory extends Inventory {
         boolean mageIsRegistered = MineTail.getDatabaseManager().getMages().stream().anyMatch(mage -> mage.getUniqueId().equals(player.getUniqueId()));
 
         if (mageIsRegistered) {
-            MineTail.getServerManager().teleportToServer(player, "fairy");
+            MineTail.getServerManager().teleportToServer(player, MineTail.getInstance().getMaintenance(player.getName()));
             getGUI().close();
         } else {
-            RandomKit randomKit = RandomKit.random(magicClass);
-            Logger.debug(randomKit.getName() + "/" + Arrays.toString(randomKit.getSpells()) + "/" + randomKit.getRare(), false);
+            RandomKit randomKit = RandomKit.getSorted(Mage.MAGIC_CLASS.HOLDING_MAGIC).get(RandomKit.random(Mage.MAGIC_CLASS.HOLDING_MAGIC));
+            Logger.debug(randomKit.getName() + " | " + randomKit.getMagicClass() + " | " + randomKit.getRare(), false);
             Mage mage = new Mage(player.getUniqueId(), config.getInt("magicLevel"), null, magicClass.name(),
                     config.getString("bossBarDefaultColor", "PINK"), ManaBar.MEDIUM.name(), randomKit.getSpells());
             MineTail.getDatabaseManager().insert(mage);
             getGUI().close();
-            MineTail.getServerManager().sendForwardMage(player, "fairy", "DatabaseChannel", "MageSetInsert", mage);
-            MineTail.getServerManager().teleportToServer(player, "fairy");
+            MineTail.getServerManager().sendForwardMage(player, MineTail.getInstance().getMaintenance(player.getName()), "DatabaseChannel", "MageSetInsert", mage);
+            MineTail.getServerManager().teleportToServer(player, MineTail.getInstance().getMaintenance(player.getName()));
             return true;
         }
         return false;

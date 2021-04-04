@@ -36,7 +36,7 @@ public class DatabaseManager {
                     + "(uuid varchar(36) NOT NULL,"
                     + "name varchar(16) NOT NULL,"
                     + "magicLevel int NOT NULL,"
-                    + "rank varchar(255) NULL,"
+                    + "magicRank varchar(255) NULL,"
                     + "magicClass varchar(16) NULL,"
                     + "manaBarColor varchar(16) NOT NULL,"
                     + "manaBarAppearTime varchar(16) NOT NULL,"
@@ -112,7 +112,7 @@ public class DatabaseManager {
     public void update(@NotNull Mage mage) {
         String uuid = mage.getUniqueId().toString();
 
-        String update = "UPDATE minetail_players SET name=?, magicLevel=?, rank=?, magicClass=?, manaBarColor=?, manaBarAppearTime=?, Spells=? WHERE uuid=?;";
+        String update = "UPDATE minetail_players SET name=?, magicLevel=?, magicRank=?, magicClass=?, manaBarColor=?, manaBarAppearTime=?, Spells=? WHERE uuid=?;";
         try (PreparedStatement statement = getConnection().prepareStatement(update)) {
             statement.setString(1, mage.getName());
             statement.setInt(2, mage.getMagicLevel());
@@ -131,7 +131,7 @@ public class DatabaseManager {
 
 
     public void update(@NotNull Set<Mage> mageSet) {
-        String update = "UPDATE minetail_players SET name=?, magicLevel=?, rank=?, magicClass=?, manaBarColor=?, manaBarAppearTime=?, Spells=? WHERE uuid=?;";
+        String update = "UPDATE minetail_players SET name=?, magicLevel=?, magicRank=?, magicClass=?, manaBarColor=?, manaBarAppearTime=?, Spells=? WHERE uuid=?;";
         Logger.debug("Mages: " + mageSet.size(), false);
         for (Mage mage : mageSet) {
             if (mage.changed) {
@@ -169,7 +169,7 @@ public class DatabaseManager {
     public void insert(@NotNull Mage mage) {
         String uuid = mage.getUniqueId().toString();
 
-        String insert = "INSERT INTO minetail_players (uuid, name, magicLevel, rank, magicClass, manaBarColor, manaBarAppearTime, Spells) VALUES (?, ?, ?, ?, ?, ?, ?, ?);";
+        String insert = "INSERT INTO minetail_players (uuid, name, magicLevel, magicRank, magicClass, manaBarColor, manaBarAppearTime, Spells) VALUES (?, ?, ?, ?, ?, ?, ?, ?);";
         try (PreparedStatement statement = getConnection().prepareStatement(insert)) {
             statement.setString(1, uuid);
             statement.setString(2, mage.getName());
@@ -194,7 +194,7 @@ public class DatabaseManager {
             while (rs.next()) {
                 UUID uuid = UUID.fromString(rs.getString("uuid"));
                 Integer magicLevel = rs.getInt("magicLevel");
-                String rank = rs.getString("rank");
+                String rank = rs.getString("magicRank");
                 String magicClass = rs.getString("magicClass");
                 String manaBarColor = rs.getString("manaBarColor");
                 String manaBarAppearTime = rs.getString("manaBarAppearTime");

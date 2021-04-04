@@ -28,9 +28,13 @@ public class MagicSpellsCast implements Listener {
 
     @EventHandler(ignoreCancelled = true)
     public void castEvent(SpellCastEvent event) {
-        if (PlayerJoin.mage == null) return;
-
         Player player = (Player) event.getCaster();
+
+        Mage mage = MineTail.getDatabaseManager().getMage(player.getUniqueId());
+        if (mage == null) {
+            player.sendMessage(ChatColor.DARK_RED + "Вы не инициализованы на сервере как маг. Перезайдите!");
+            return;
+        }
 
         LocalPlayer localPlayer = WorldGuardPlugin.inst().wrapPlayer(player);
         RegionContainer container = WorldGuard.getInstance().getPlatform().getRegionContainer();
@@ -39,7 +43,6 @@ public class MagicSpellsCast implements Listener {
         Set<String> spellBlackList = query.queryValue(localPlayer.getLocation(), localPlayer, Flags.SPELL_BLACKLIST);
         Set<String> spellWhiteList = query.queryValue(localPlayer.getLocation(), localPlayer, Flags.SPELL_WHITELIST);
 
-        Mage mage = PlayerJoin.mage;
         FileConfiguration config = MineTail.getConfiguration().getConfig();
 
         int cooldown = (int) event.getSpell().getCooldown(player);
@@ -85,7 +88,7 @@ public class MagicSpellsCast implements Listener {
             }.runTaskTimer(plugin, 0, 20L);
         }
 
-        remainingTimer.put(player, mage != null ? ManaBar.valueOf(mage.getManaBarAppearTime()).getTime() : config.getInt("disappearTime", 3));
+        remainingTimer.put(player, ManaBar.valueOf(mage.getManaBarAppearTime()).getTime());
     }
 
     void decreaseRemainingTimer(Map<Player, Integer> remainingTimer, Player player) {
