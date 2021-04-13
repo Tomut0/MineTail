@@ -51,6 +51,7 @@ public class MineTail extends JavaPlugin {
 
         registerManagers();
         registerEvents();
+        registerDependencies();
         commandManager.registerCommand(new MineTailCommand(instance), true);
 
         if (!serverManager.isAuthServer()) {
@@ -105,6 +106,12 @@ public class MineTail extends JavaPlugin {
 
             getServer().getPluginManager().registerEvents(new MagicSpellsCast(), this);
         }
+    }
+
+    private void registerDependencies() {
+        commandManager.registerDependency(DatabaseManager.class, databaseManager);
+        commandManager.registerDependency(ServerManager.class, serverManager);
+        commandManager.registerDependency(ConfigManager.class, configManager);
     }
 
     public static ServerManager getServerManager() {
