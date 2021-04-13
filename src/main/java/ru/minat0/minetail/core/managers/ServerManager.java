@@ -5,6 +5,7 @@ import com.google.common.io.ByteStreams;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ServerInfo;
 import org.bukkit.Bukkit;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import ru.minat0.minetail.core.Mage;
 import ru.minat0.minetail.core.MineTail;
@@ -52,6 +53,11 @@ public class ServerManager {
         });
 
         return isOnline[0];
+    }
+
+    public boolean isMaintenance() {
+        FileConfiguration config = MineTail.getConfiguration().getConfig();
+        return config.getBoolean("maintenance");
     }
 
     /**
@@ -128,18 +134,6 @@ public class ServerManager {
         out.write(msgbytes.toByteArray());
 
         player.sendPluginMessage(MineTail.getInstance(), "BungeeCord", out.toByteArray());
-    }
-
-    public void getPlayerCount(String server) {
-        ByteArrayOutputStream b = new ByteArrayOutputStream();
-        DataOutputStream out = new DataOutputStream(b);
-
-        try {
-            out.writeUTF("PlayerCount");
-            out.writeUTF(server);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 
     public boolean isAuthServer() {

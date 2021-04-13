@@ -1,6 +1,8 @@
 package ru.minat0.minetail.main.events;
 
+import com.nisovin.magicspells.MagicSpells;
 import com.nisovin.magicspells.events.SpellCastEvent;
+import com.nisovin.magicspells.mana.ManaHandler;
 import com.sk89q.worldguard.LocalPlayer;
 import com.sk89q.worldguard.WorldGuard;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
@@ -43,8 +45,6 @@ public class MagicSpellsCast implements Listener {
         Set<String> spellBlackList = query.queryValue(localPlayer.getLocation(), localPlayer, Flags.SPELL_BLACKLIST);
         Set<String> spellWhiteList = query.queryValue(localPlayer.getLocation(), localPlayer, Flags.SPELL_WHITELIST);
 
-        FileConfiguration config = MineTail.getConfiguration().getConfig();
-
         int cooldown = (int) event.getSpell().getCooldown(player);
         if (cooldown > 0) return;
 
@@ -66,8 +66,8 @@ public class MagicSpellsCast implements Listener {
         }
 
         if (!remainingTimer.containsKey(player)) {
-            MineTail plugin = MineTail.getInstance();
-            BossBar manaBar = plugin.getManaBars().get(player.getUniqueId());
+            ManaHandler manaHandler = MagicSpells.getManaHandler();
+            BossBar manaBar = MineTail.getInstance().getManaBars().get(player.getUniqueId());
 
             if (manaBar == null) return;
 
@@ -75,7 +75,7 @@ public class MagicSpellsCast implements Listener {
             new BukkitRunnable() {
                 @Override
                 public void run() {
-                    double remainingMana = (double) plugin.getManaHandler().getMana(player) / plugin.getManaHandler().getMaxMana(player);
+                    double remainingMana = (double) manaHandler.getMana(player) / manaHandler.getMaxMana(player);
                     manaBar.setProgress(remainingMana);
                     decreaseRemainingTimer(remainingTimer, player);
 
@@ -85,7 +85,7 @@ public class MagicSpellsCast implements Listener {
                         this.cancel();
                     }
                 }
-            }.runTaskTimer(plugin, 0, 20L);
+            }.runTaskTimer(MineTail.getInstance(), 0, 20L);
         }
 
         remainingTimer.put(player, ManaBar.valueOf(mage.getManaBarAppearTime()).getTime());

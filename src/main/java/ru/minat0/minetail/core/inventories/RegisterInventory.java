@@ -53,8 +53,13 @@ public class RegisterInventory extends Inventory {
     boolean registerAndTeleport(Player player, Mage.MAGIC_CLASS magicClass) {
         boolean mageIsRegistered = MineTail.getDatabaseManager().getMages().stream().anyMatch(mage -> mage.getUniqueId().equals(player.getUniqueId()));
 
+        if (MineTail.getServerManager().isMaintenance()) {
+            player.sendMessage("Сервер находиться на техническом обслуживании, вход временно недоступен!");
+            return false;
+        }
+
         if (mageIsRegistered) {
-            MineTail.getServerManager().teleportToServer(player, MineTail.getInstance().getMaintenance(player.getName()));
+            MineTail.getServerManager().teleportToServer(player, "fairy");
             getGUI().close();
         } else {
             RandomKit randomKit = RandomKit.getSorted(magicClass).get(RandomKit.random(magicClass));
@@ -63,10 +68,11 @@ public class RegisterInventory extends Inventory {
                     config.getString("bossBarDefaultColor", "PINK"), ManaBar.MEDIUM.name(), randomKit.getSpells());
             MineTail.getDatabaseManager().insert(mage);
             getGUI().close();
-            MineTail.getServerManager().sendForwardMage(player, MineTail.getInstance().getMaintenance(player.getName()), "DatabaseChannel", "MageSetInsert", mage);
-            MineTail.getServerManager().teleportToServer(player, MineTail.getInstance().getMaintenance(player.getName()));
+            MineTail.getServerManager().sendForwardMage(player, "fairy", "DatabaseChannel", "MageSetInsert", mage);
+            MineTail.getServerManager().teleportToServer(player, "fairy");
             return true;
         }
+
         return false;
     }
 

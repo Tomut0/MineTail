@@ -1,7 +1,6 @@
 package ru.minat0.minetail.core;
 
 import co.aikar.commands.PaperCommandManager;
-import com.Zrips.CMI.CMI;
 import com.nisovin.magicspells.MagicSpells;
 import com.nisovin.magicspells.mana.ManaHandler;
 import org.bukkit.Bukkit;
@@ -34,7 +33,6 @@ public class MineTail extends JavaPlugin {
     }
 
     private final HashMap<UUID, BossBar> manaBars = new HashMap<>();
-    private ManaHandler manaHandler;
 
     @Override
     public void onLoad() {
@@ -53,11 +51,6 @@ public class MineTail extends JavaPlugin {
         registerEvents();
         registerDependencies();
         commandManager.registerCommand(new MineTailCommand(instance), true);
-
-        if (!serverManager.isAuthServer()) {
-            manaHandler = MagicSpells.getManaHandler();
-            setupEconomy();
-        }
     }
 
     @Override
@@ -78,13 +71,6 @@ public class MineTail extends JavaPlugin {
         databaseManager.loadDataToMemory();
 
         RandomKit.loadKits();
-    }
-
-    private void setupEconomy() {
-        if (getServer().getPluginManager().getPlugin("CMI") == null && CMI.getInstance().getEconomyManager().isEnabled()) {
-            getServer().getPluginManager().disablePlugin(instance);
-            Logger.error("Error when trying to load CMI Economy. Disable plugin.");
-        }
     }
 
     private void registerEvents() {
@@ -127,20 +113,5 @@ public class MineTail extends JavaPlugin {
 
     public HashMap<UUID, BossBar> getManaBars() {
         return manaBars;
-    }
-
-    public ManaHandler getManaHandler() {
-        return manaHandler;
-    }
-
-    public String getMaintenance(String playerName) {
-        if (configManager.getConfig().getBoolean("maintenance")) {
-            if (!configManager.getConfig().getStringList("maintenancebypass").isEmpty()
-                    && configManager.getConfig().getStringList("maintenancebypass").contains(playerName)) {
-                return "test";
-            }
-        }
-
-        return "fairy";
     }
 }
