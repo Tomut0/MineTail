@@ -74,8 +74,7 @@ public class MineTail extends JavaPlugin {
 
         serverManager = new ServerManager();
 
-        databaseManager = new DatabaseManager();
-        databaseManager.setup();
+        databaseManager = new DatabaseManager(this, configManager.getConfig(), DatabaseManager.DBType.valueOf(configManager.getConfig().getString("DataSource.backend")));
         databaseManager.loadDataToMemory();
 
         RandomKit.loadKits();

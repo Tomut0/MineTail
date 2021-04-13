@@ -57,7 +57,7 @@ public class RegisterInventory extends Inventory {
             MineTail.getServerManager().teleportToServer(player, MineTail.getInstance().getMaintenance(player.getName()));
             getGUI().close();
         } else {
-            RandomKit randomKit = RandomKit.getSorted(Mage.MAGIC_CLASS.HOLDING_MAGIC).get(RandomKit.random(Mage.MAGIC_CLASS.HOLDING_MAGIC));
+            RandomKit randomKit = RandomKit.getSorted(magicClass).get(RandomKit.random(magicClass));
             Logger.debug(randomKit.getName() + " | " + randomKit.getMagicClass() + " | " + randomKit.getRare(), false);
             Mage mage = new Mage(player.getUniqueId(), config.getInt("magicLevel"), null, magicClass.name(),
                     config.getString("bossBarDefaultColor", "PINK"), ManaBar.MEDIUM.name(), randomKit.getSpells());

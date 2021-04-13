@@ -2,10 +2,10 @@ package ru.minat0.minetail.core.managers;
 
 import com.zaxxer.hikari.HikariDataSource;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import ru.minat0.minetail.core.Mage;
-import ru.minat0.minetail.core.MineTail;
 import ru.minat0.minetail.core.utils.Logger;
 import ru.minat0.minetail.core.utils.StringBuilder;
 
@@ -22,20 +22,30 @@ import java.util.UUID;
  * https://github.com/RoinujNosde/TitansBattle/blob/master/src/main/java/me/roinujnosde/titansbattle/managers/DatabaseManager.java
  */
 public class DatabaseManager {
-    private final MineTail plugin = MineTail.getInstance();
-
-    final String dbName = "MineTail";
-    private Connection connection;
+    private final Plugin plugin;
+    private final FileConfiguration config;
+    private final HikariDataSource dataSource;
 
     private final Set<Mage> mages = new HashSet<>();
 
+    public DatabaseManager(Plugin plugin, FileConfiguration config, DBType type) {
+        this.plugin = plugin;
+        this.config = config;
+        this.dataSource = getDataSource(type);
+        setup();
+    }
+
+    public enum DBType {
+        SQLITE, MYSQL
+    }
+
     public void setup() {
-        try {
-            Statement statement = getConnection().createStatement();
+        try (Connection connection = getConnection(); Statement statement = connection.createStatement()) {
             statement.execute("CREATE TABLE IF NOT EXISTS minetail_players "
                     + "(uuid varchar(36) NOT NULL,"
                     + "name varchar(16) NOT NULL,"
                     + "magicLevel int NOT NULL,"
+                    + "experience int DEFAULT 0 NOT NULL,"
                     + "magicRank varchar(255) NULL,"
                     + "magicClass varchar(16) NULL,"
                     + "manaBarColor varchar(16) NOT NULL,"
@@ -48,65 +58,48 @@ public class DatabaseManager {
         }
     }
 
-    private Connection getConnection() throws SQLException {
-        if (connection == null || connection.isClosed()) {
-            initialize();
-        }
+    private HikariDataSource getDataSource(DBType type) {
+        dataSource.setMaximumPoolSize(20);
+        dataSource.addDataSourceProperty("cachePrepStmts", "true");
+        dataSource.addDataSourceProperty("prepStmtCacheSize", "250");
+        dataSource.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
 
-        return connection;
+        switch (type) {
+            case SQLITE:
+                File SQLFile = createFileIfNotExist();
+                dataSource.setDriverClassName("org.sqlite.JDBC");
+                dataSource.setJdbcUrl("jdbc:sqlite:" + SQLFile);
+                return dataSource;
+            case MYSQL:
+                String database = config.getString("DataSource.mySQLDatabase");
+                String hostname = config.getString("DataSource.mySQLHost");
+                String port = config.getString("DataSource.mySQLPort");
+                dataSource.setDriverClassName("org.mariadb.jdbc.Driver");
+                dataSource.setJdbcUrl("jdbc:mariadb://" + hostname + ":" + port + "/" + database);
+                return dataSource;
+            default:
+                Logger.warning("Unable to get type of database connection, please check \"DataSource.backend\" in config.yml! Using SQLite instead...");
+                return getDataSource(DBType.SQLITE);
+        }
     }
 
-    private void initialize() throws SQLException {
-        HikariDataSource ds = new HikariDataSource();
-        FileConfiguration config = MineTail.getConfiguration().getConfig();
+    private Connection getConnection() throws SQLException {
+        return dataSource.getConnection();
+    }
 
-        String dbType = config.getString("DataSource.backend", "SQLITE");
+    File createFileIfNotExist() {
+        File sqlFile = new File(plugin.getDataFolder(), plugin.getDescription().getName() + ".db");
 
-        assert dbType != null;
-        if (!dbType.equalsIgnoreCase("mysql") && !dbType.equalsIgnoreCase("sqlite")) {
-            Logger.warning("Error while getting the type of DB, please check \"DataSource.backend\" in config.yml! Using SQLite instead...");
-            dbType = "SQLITE";
+        if (!sqlFile.exists()) {
+            try {
+                sqlFile.createNewFile();
+                return sqlFile;
+            } catch (IOException ex) {
+                Logger.error("File write error: " + plugin.getDescription().getName() + ".db");
+            }
         }
 
-        if (dbType.equalsIgnoreCase("MYSQL")) {
-            String database = config.getString("DataSource.mySQLDatabase");
-            String hostname = config.getString("DataSource.mySQLHost");
-            String port = config.getString("DataSource.mySQLPort");
-
-            ds.setUsername(config.getString("DataSource.mySQLUsername"));
-            ds.setPassword(config.getString("DataSource.mySQLPassword"));
-            ds.setMaximumPoolSize(20);
-            ds.setDriverClassName("org.mariadb.jdbc.Driver");
-            ds.setJdbcUrl("jdbc:mariadb://" + hostname + ":" + port + "/" + database);
-            ds.addDataSourceProperty("cachePrepStmts", "true");
-            ds.addDataSourceProperty("prepStmtCacheSize", "250");
-            ds.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
-            ds.setIdleTimeout(1800000);
-
-            try {
-                connection = ds.getConnection();
-            } catch (SQLException ex) {
-                Logger.error("Error while trying to establish database connection: " + ex.getMessage());
-            }
-        } else {
-            File sqlFile = new File(plugin.getDataFolder(), dbName + ".db");
-
-            if (!sqlFile.exists()) {
-                try {
-                    sqlFile.createNewFile();
-                } catch (IOException ex) {
-                    Logger.error("File write error: " + dbName + ".db");
-                }
-            }
-
-            try {
-                ds.setDriverClassName("org.sqlite.JDBC");
-                ds.setJdbcUrl("jdbc:sqlite:" + sqlFile);
-                connection = ds.getConnection();
-            } catch (SQLException ex) {
-                Logger.error("SQLite driver not found!");
-            }
-        }
+        return sqlFile;
     }
 
     public void update(@NotNull Mage mage) {
@@ -217,26 +210,6 @@ public class DatabaseManager {
         }
 
         return null;
-    }
-
-    public void close(PreparedStatement ps, ResultSet rs) {
-        try {
-            if (ps != null)
-                ps.close();
-            if (rs != null)
-                rs.close();
-        } catch (SQLException ex) {
-            Logger.error("Failed to close SQL connection: " + ex.getMessage());
-        }
-    }
-
-    public void close(PreparedStatement ps) {
-        try {
-            if (ps != null)
-                ps.close();
-        } catch (SQLException ex) {
-            Logger.error("Failed to close SQL connection: " + ex.getMessage());
-        }
     }
 
     public Set<Mage> getMages() {
