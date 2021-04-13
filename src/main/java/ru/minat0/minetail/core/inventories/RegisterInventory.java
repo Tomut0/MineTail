@@ -6,9 +6,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
-import ru.minat0.minetail.core.Inventory;
 import ru.minat0.minetail.core.Mage;
 import ru.minat0.minetail.core.ManaBar;
 import ru.minat0.minetail.core.MineTail;
@@ -16,13 +14,9 @@ import ru.minat0.minetail.core.utils.Logger;
 import ru.minat0.minetail.main.RandomKit;
 
 public class RegisterInventory extends Inventory {
-    private final Player sender;
 
     public RegisterInventory(Player player) {
-        this.sender = player;
-
-        getGUI().setFiller(new ItemStack(Material.GRAY_STAINED_GLASS_PANE, 1));
-        addGUIElements();
+        super(player, "GUI.register", true);
     }
 
     @Override
@@ -74,24 +68,5 @@ public class RegisterInventory extends Inventory {
         }
 
         return false;
-    }
-
-    @Override
-    public String getInventoryTitle() {
-        String title = config.getString("GUI.register.title");
-        if (title != null) {
-            return ChatColor.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(sender, title));
-        }
-        return "Регистрация";
-    }
-
-    @Override
-    public InventoryHolder getInventoryOwner() {
-        return null;
-    }
-
-    @Override
-    public String[] getInventoryFormat() {
-        return config.getStringList("GUI.register.format").toArray(new String[0]);
     }
 }

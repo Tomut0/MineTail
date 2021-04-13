@@ -36,25 +36,6 @@ public class ServerManager {
         }
     }
 
-    /**
-     * Used on BungeeCord
-     *
-     * @param serverName - server to player teleport
-     * @return True if server online
-     */
-    public boolean isOnlineBungee(String serverName) {
-        ServerInfo server = ProxyServer.getInstance().getServerInfo(serverName);
-
-        final boolean[] isOnline = new boolean[1];
-        server.ping((result, error) ->
-        {
-            if (error != null) isOnline[0] = true;
-            isOnline[0] = false;
-        });
-
-        return isOnline[0];
-    }
-
     public boolean isMaintenance() {
         FileConfiguration config = MineTail.getConfiguration().getConfig();
         return config.getBoolean("maintenance");

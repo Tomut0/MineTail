@@ -19,6 +19,11 @@ public class AuthMeLoginEvent implements Listener {
         Player p = event.getPlayer();
         FileConfiguration config = MineTail.getConfiguration().getConfig();
 
+        if (MineTail.getServerManager().isMaintenance()) {
+            p.sendMessage(ChatColor.DARK_RED + "Сервер находиться на техническом обслуживании, вход временно недоступен!");
+            return;
+        }
+
         if (MineTail.getServerManager().isOnline(config.getString("host"), config.getInt("port"))) {
             if (MineTail.getDatabaseManager().getMage(p.getUniqueId()) != null) {
                 p.sendMessage(ChatColor.YELLOW + "Подключаемся к серверу FairyTail");

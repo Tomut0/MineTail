@@ -185,14 +185,6 @@
             <scope>compile</scope>
         </dependency>
 
-        <!-- LuckPerms API -->
-        <dependency>
-            <groupId>net.luckperms</groupId>
-            <artifactId>api</artifactId>
-            <version>5.2</version>
-            <scope>provided</scope>
-        </dependency>
-
         <!-- PlaceholderAPI API-->
         <dependency>
             <groupId>me.clip</groupId>
@@ -220,14 +212,6 @@
             <groupId>com.github.MilkBowl</groupId>
             <artifactId>VaultAPI</artifactId>
             <version>1.7</version>
-            <scope>provided</scope>
-        </dependency>
-
-        <!-- advanced-region-market Dependency -->
-        <dependency>
-            <groupId>com.github.alex9849</groupId>
-            <artifactId>advanced-region-market</artifactId>
-            <version>2.1.5</version>
             <scope>provided</scope>
         </dependency>
 
