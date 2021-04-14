@@ -2,8 +2,6 @@ package ru.minat0.minetail.core.managers;
 
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
-import net.md_5.bungee.api.ProxyServer;
-import net.md_5.bungee.api.config.ServerInfo;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
@@ -38,7 +36,7 @@ public class ServerManager {
 
     public boolean isMaintenance() {
         FileConfiguration config = MineTail.getConfiguration().getConfig();
-        return config.getBoolean("maintenance");
+        return config.getBoolean("maintenance", false);
     }
 
     /**

@@ -1,5 +1,5 @@
 <component name="libraryTable">
-  <library name="bin">
+  <library name="CMI-API">
     <CLASSES>
       <root url="file://$PROJECT_DIR$/../CMI-API/bin" />
     </CLASSES>

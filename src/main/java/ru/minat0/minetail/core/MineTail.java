@@ -1,8 +1,6 @@
 package ru.minat0.minetail.core;
 
 import co.aikar.commands.PaperCommandManager;
-import com.nisovin.magicspells.MagicSpells;
-import com.nisovin.magicspells.mana.ManaHandler;
 import org.bukkit.Bukkit;
 import org.bukkit.boss.BossBar;
 import org.bukkit.event.Listener;

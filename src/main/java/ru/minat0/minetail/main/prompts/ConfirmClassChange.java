@@ -31,7 +31,6 @@ public class ConfirmClassChange extends StringPrompt {
         this.player = Bukkit.getPlayer(uuid);
         this.offlinePlayer = Bukkit.getOfflinePlayer(uuid);
         this.mage = MineTail.getDatabaseManager().getMage(uuid);
-
     }
 
     @NotNull

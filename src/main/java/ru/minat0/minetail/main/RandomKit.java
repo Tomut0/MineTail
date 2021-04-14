@@ -9,6 +9,7 @@ import ru.minat0.minetail.core.utils.Logger;
 import java.util.*;
 import java.util.stream.Collectors;
 
+// FIXME: 14.04.2021
 public class RandomKit {
     public static final Map<Integer, RandomKit> randomKits = new HashMap<>();
 
@@ -42,24 +43,6 @@ public class RandomKit {
             }
         }
     }
-
-/*    @Nullable
-    public static String getKitNameFromSpells(List<String> spellList) {
-        FileConfiguration config = MineTail.getConfiguration().getConfig();
-
-        for (Type type : Type.values()) {
-            String path = "Kits." + magicClass.name() + "." + type.name();
-            ConfigurationSection configurationSection = config.getConfigurationSection(path);
-
-            if (configurationSection != null) {
-                for (String key : configurationSection.getKeys(false)) {
-                    if (config.getStringList(path + "." + key).equals(spellList)) return key;
-                }
-            }
-        }
-
-        return null;
-    }*/
 
     public static int random(Mage.MAGIC_CLASS magic_class) {
         double random = Math.random() * Type.getSumChances();
