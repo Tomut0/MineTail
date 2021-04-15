@@ -1,4 +1,4 @@
-package ru.minat0.minetail.core;
+package ru.minat0.minetail.core.worldguard;
 
 import com.sk89q.worldguard.WorldGuard;
 import com.sk89q.worldguard.protection.flags.Flag;
@@ -32,11 +32,6 @@ public class Flags {
         return f;
     }
 
-    /**
-     * Dummy method to call that initialises the class.
-     *
-     * @return
-     */
     public static void registerAll() {
         SPELL_BLACKLIST = register(new SetFlag<>("spell-blacklist", new SpellsStringFlag(null)));
         SPELL_WHITELIST = register(new SetFlag<>("spell-whitelist", new SpellsStringFlag(null)));

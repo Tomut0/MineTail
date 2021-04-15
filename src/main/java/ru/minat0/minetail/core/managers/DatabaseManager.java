@@ -7,7 +7,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import ru.minat0.minetail.core.Mage;
 import ru.minat0.minetail.core.utils.Logger;
-import ru.minat0.minetail.core.utils.StringSerialize;
+import ru.minat0.minetail.core.utils.Helper;
 
 import java.io.File;
 import java.io.IOException;
@@ -91,6 +91,7 @@ public class DatabaseManager {
         return dataSource.getConnection();
     }
 
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     File createFileIfNotExist() {
         File sqlFile = new File(plugin.getDataFolder(), plugin.getDescription().getName() + ".db");
 
@@ -117,7 +118,7 @@ public class DatabaseManager {
             statement.setString(4, mage.getMagicClass());
             statement.setString(5, mage.getManaBarColor());
             statement.setString(6, mage.getManaBarAppearTime());
-            statement.setString(7, StringSerialize.serialize(mage.getSpells()));
+            statement.setString(7, Helper.serialize(mage.getSpells()));
             statement.setString(8, uuid);
 
             statement.execute();
@@ -141,7 +142,7 @@ public class DatabaseManager {
                     statement.setString(4, mage.getMagicClass());
                     statement.setString(5, mage.getManaBarColor());
                     statement.setString(6, mage.getManaBarAppearTime());
-                    statement.setString(7, StringSerialize.serialize(mage.getSpells()));
+                    statement.setString(7, Helper.serialize(mage.getSpells()));
                     statement.setString(8, uuid);
                     statement.execute();
                 } catch (SQLException ex) {
@@ -175,7 +176,7 @@ public class DatabaseManager {
             statement.setString(5, mage.getMagicClass());
             statement.setString(6, mage.getManaBarColor());
             statement.setString(7, mage.getManaBarAppearTime());
-            statement.setString(8, StringSerialize.serialize(mage.getSpells()));
+            statement.setString(8, Helper.serialize(mage.getSpells()));
             statement.execute();
             mages.add(mage);
         } catch (SQLException ex) {
@@ -195,7 +196,7 @@ public class DatabaseManager {
                 String magicClass = rs.getString("magicClass");
                 String manaBarColor = rs.getString("manaBarColor");
                 String manaBarAppearTime = rs.getString("manaBarAppearTime");
-                String[] Spells = StringSerialize.unserialize(rs.getString("Spells"));
+                String[] Spells = Helper.unserialize(rs.getString("Spells"));
 
                 Mage mage = new Mage(uuid, magicLevel, rank, magicClass, manaBarColor, manaBarAppearTime, Spells);
                 mages.add(mage);

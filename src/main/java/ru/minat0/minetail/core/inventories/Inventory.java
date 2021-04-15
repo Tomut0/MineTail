@@ -1,8 +1,6 @@
 package ru.minat0.minetail.core.inventories;
 
 import de.themoep.inventorygui.InventoryGui;
-import me.clip.placeholderapi.PlaceholderAPI;
-import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
@@ -11,18 +9,19 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import ru.minat0.minetail.core.MineTail;
+import ru.minat0.minetail.core.utils.Helper;
 
 import java.util.Objects;
 
 public abstract class Inventory {
-    public final MineTail plugin = MineTail.getInstance();
-    public final FileConfiguration config = MineTail.getConfiguration().getConfig();
+    protected final MineTail plugin = MineTail.getInstance();
+    protected final FileConfiguration config = MineTail.getConfiguration().getConfig();
 
     private final InventoryGui gui;
-    protected final Player sender;
+    protected final Player who;
 
     public Inventory(@NotNull Player sender, @NotNull String path, boolean hasFilter) {
-        this.sender = sender;
+        this.who = sender;
         gui = new InventoryGui(plugin, getOwner(), getTitle(path), getInventoryFormat(path));
         addGUIElements();
         if (hasFilter) {
@@ -35,8 +34,7 @@ public abstract class Inventory {
     @NotNull
     public String getTitle(String path) {
         String title = config.getString(path + ".title");
-        return ChatColor.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(sender,
-                Objects.requireNonNull(title, this.getClass().getSimpleName() + " | Couldn't found title!")));
+        return Helper.getFormattedString(who, Objects.requireNonNull(title, this.getClass().getSimpleName() + " | Couldn't found title!"));
     }
 
     @Nullable

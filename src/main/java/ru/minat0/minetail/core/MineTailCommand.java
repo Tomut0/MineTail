@@ -160,6 +160,11 @@ public class MineTailCommand extends BaseCommand {
         @Default
         @CommandPermission("minetail.player.register")
         public void onRegister(Player player) {
+            if (MineTail.getServerManager().isMaintenance()) {
+                player.sendMessage(ChatColor.DARK_RED + "Сервер находиться на техническом обслуживании, вход временно недоступен!");
+                return;
+            }
+
             RegisterInventory regInv = new RegisterInventory(player);
             regInv.getGUI().show(player);
         }

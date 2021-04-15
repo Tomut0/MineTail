@@ -1,11 +1,24 @@
 package ru.minat0.minetail.core.utils;
 
+import me.clip.placeholderapi.PlaceholderAPI;
+import org.bukkit.ChatColor;
+import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.StringTokenizer;
 
 // FIXME: 14.04.2021
-public class StringSerialize {
+public class Helper {
+
+    public static String getFormattedString(@Nullable Player who, @NotNull String String) {
+        return ChatColor.translateAlternateColorCodes('&', who != null ? PlaceholderAPI.setPlaceholders(who, String) : String);
+    }
+
+    public static String getFormattedString(@NotNull String String) {
+        return getFormattedString(null, String);
+    }
+
     public static String serialize(@NotNull String[] strs) {
         StringBuilder sizes = new StringBuilder("$");
         StringBuilder result = new StringBuilder();

@@ -11,8 +11,8 @@ import ru.minat0.minetail.core.managers.ConfigManager;
 import ru.minat0.minetail.core.managers.DatabaseManager;
 import ru.minat0.minetail.core.managers.ServerManager;
 import ru.minat0.minetail.core.utils.Logger;
+import ru.minat0.minetail.core.worldguard.Flags;
 import ru.minat0.minetail.main.RandomKit;
-import ru.minat0.minetail.main.events.MagicSpellsCast;
 
 import java.util.HashMap;
 import java.util.Set;
@@ -86,8 +86,6 @@ public class MineTail extends JavaPlugin {
                     Logger.error("Error registering event: " + ex.getMessage());
                 }
             }
-
-            getServer().getPluginManager().registerEvents(new MagicSpellsCast(), this);
         }
     }
 
