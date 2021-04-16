@@ -1,4 +1,4 @@
-package ru.minat0.minetail.core;
+package ru.minat0.minetail.core.worldguard;
 
 import com.sk89q.worldguard.protection.flags.Flag;
 import com.sk89q.worldguard.protection.flags.FlagContext;
@@ -17,7 +17,7 @@ public class SpellsStringFlag extends Flag<String> {
     }
 
     @Override
-    public String parseInput(FlagContext flagContext) throws InvalidFlagFormat {
+    public String parseInput(FlagContext flagContext) {
         return flagContext.getUserInput().trim();
     }
 

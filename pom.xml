@@ -6,7 +6,7 @@
 
     <groupId>ru.minat0</groupId>
     <artifactId>MineTail</artifactId>
-    <version>1.1.8-SNAPSHOT</version>
+    <version>1.2.6-SNAPSHOT</version>
 
     <build>
         <!-- Resources -->
@@ -31,14 +31,18 @@
                     <relocations>
                         <relocation>
                             <pattern>org.reflections</pattern>
-                            <shadedPattern>ru.minat0.MineTails</shadedPattern>
+                            <shadedPattern>ru.minat0.api.reflections</shadedPattern>
                         </relocation>
-                        <!--  PhoenixGUI API -->
                         <relocation>
                             <pattern>de.themoep</pattern>
                             <shadedPattern>io.github.apfelcreme.Pipes.libs</shadedPattern>
                         </relocation>
+                        <relocation>
+                            <pattern>com.zaxxer</pattern>
+                            <shadedPattern>ru.minat0.api</shadedPattern>
+                        </relocation>
                     </relocations>
+
                 </configuration>
                 <executions>
                     <execution>
@@ -57,6 +61,13 @@
                 <configuration>
                     <source>11</source>
                     <target>11</target>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>io.ebean</groupId>
+                            <artifactId>querybean-generator</artifactId>
+                            <version>12.8.0</version>
+                        </path>
+                    </annotationProcessorPaths>
                 </configuration>
             </plugin>
 
@@ -68,6 +79,7 @@
         <maven.compiler.target>11</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <powermock.version>2.0.2</powermock.version>
     </properties>
 
     <repositories>
@@ -129,20 +141,7 @@
             <groupId>com.zaxxer</groupId>
             <artifactId>HikariCP</artifactId>
             <version>4.0.3</version>
-        </dependency>
-
-        <!-- MariaDB JDBC -->
-        <dependency>
-            <groupId>org.mariadb.jdbc</groupId>
-            <artifactId>mariadb-java-client</artifactId>
-            <version>2.6.2</version>
-        </dependency>
-
-        <!-- SQLite JDBC -->
-        <dependency>
-            <groupId>org.xerial</groupId>
-            <artifactId>sqlite-jdbc</artifactId>
-            <version>3.34.0</version>
+            <scope>compile</scope>
         </dependency>
 
         <!-- Purpur API -->
@@ -158,6 +157,7 @@
             <groupId>org.reflections</groupId>
             <artifactId>reflections</artifactId>
             <version>0.9.9-RC1</version>
+            <scope>compile</scope>
         </dependency>
 
         <!-- AuthMe API -->
@@ -184,14 +184,6 @@
             <scope>compile</scope>
         </dependency>
 
-        <!-- LuckPerms API -->
-        <dependency>
-            <groupId>net.luckperms</groupId>
-            <artifactId>api</artifactId>
-            <version>5.2</version>
-            <scope>provided</scope>
-        </dependency>
-
         <!-- PlaceholderAPI API-->
         <dependency>
             <groupId>me.clip</groupId>
@@ -205,6 +197,7 @@
             <groupId>net.kyori</groupId>
             <artifactId>adventure-text-minimessage</artifactId>
             <version>4.0.0-SNAPSHOT</version>
+            <scope>compile</scope>
         </dependency>
 
         <!-- ACF API -->
@@ -212,6 +205,7 @@
             <groupId>co.aikar</groupId>
             <artifactId>acf-paper</artifactId>
             <version>0.5.0-SNAPSHOT</version>
+            <scope>compile</scope>
         </dependency>
 
         <!-- VaultAPI -->
@@ -219,14 +213,6 @@
             <groupId>com.github.MilkBowl</groupId>
             <artifactId>VaultAPI</artifactId>
             <version>1.7</version>
-            <scope>provided</scope>
-        </dependency>
-
-        <!-- advanced-region-market Dependency -->
-        <dependency>
-            <groupId>com.github.alex9849</groupId>
-            <artifactId>advanced-region-market</artifactId>
-            <version>2.1.5</version>
             <scope>provided</scope>
         </dependency>
 
@@ -251,6 +237,58 @@
             <groupId>fr.skytasul</groupId>
             <artifactId>beautyquests-core</artifactId>
             <version>0.18.5</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- Ebean -->
+        <dependency>
+            <groupId>io.ebean</groupId>
+            <artifactId>ebean</artifactId>
+            <version>12.8.0</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <!-- Testing modules -->
+        <!-- https://junit.org/junit5/docs/current/user-guide/#running-tests-ide-intellij-idea -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <version>5.7.1</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.powermock</groupId>
+            <artifactId>powermock-module-junit4</artifactId>
+            <version>${powermock.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.powermock</groupId>
+            <artifactId>powermock-api-mockito2</artifactId>
+            <version>${powermock.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.javassist</groupId>
+            <artifactId>javassist</artifactId>
+            <version>3.18.2-GA</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>io.ebean</groupId>
+            <artifactId>ebean-test</artifactId>
+            <version>12.8.0</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+            <version>2.10.1</version>
         </dependency>
     </dependencies>
 </project>

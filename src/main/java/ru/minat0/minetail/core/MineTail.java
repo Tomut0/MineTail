@@ -1,9 +1,6 @@
 package ru.minat0.minetail.core;
 
 import co.aikar.commands.PaperCommandManager;
-import com.Zrips.CMI.CMI;
-import com.nisovin.magicspells.MagicSpells;
-import com.nisovin.magicspells.mana.ManaHandler;
 import org.bukkit.Bukkit;
 import org.bukkit.boss.BossBar;
 import org.bukkit.event.Listener;
@@ -14,8 +11,8 @@ import ru.minat0.minetail.core.managers.ConfigManager;
 import ru.minat0.minetail.core.managers.DatabaseManager;
 import ru.minat0.minetail.core.managers.ServerManager;
 import ru.minat0.minetail.core.utils.Logger;
+import ru.minat0.minetail.core.worldguard.Flags;
 import ru.minat0.minetail.main.RandomKit;
-import ru.minat0.minetail.main.events.MagicSpellsCast;
 
 import java.util.HashMap;
 import java.util.Set;
@@ -34,7 +31,6 @@ public class MineTail extends JavaPlugin {
     }
 
     private final HashMap<UUID, BossBar> manaBars = new HashMap<>();
-    private ManaHandler manaHandler;
 
     @Override
     public void onLoad() {
@@ -51,12 +47,8 @@ public class MineTail extends JavaPlugin {
 
         registerManagers();
         registerEvents();
+        registerDependencies();
         commandManager.registerCommand(new MineTailCommand(instance), true);
-
-        if (!serverManager.isAuthServer()) {
-            manaHandler = MagicSpells.getManaHandler();
-            setupEconomy();
-        }
     }
 
     @Override
@@ -73,18 +65,10 @@ public class MineTail extends JavaPlugin {
 
         serverManager = new ServerManager();
 
-        databaseManager = new DatabaseManager();
-        databaseManager.setup();
+        databaseManager = new DatabaseManager(this, configManager.getConfig(), DatabaseManager.DBType.valueOf(configManager.getConfig().getString("DataSource.backend")));
         databaseManager.loadDataToMemory();
 
         RandomKit.loadKits();
-    }
-
-    private void setupEconomy() {
-        if (getServer().getPluginManager().getPlugin("CMI") == null && CMI.getInstance().getEconomyManager().isEnabled()) {
-            getServer().getPluginManager().disablePlugin(instance);
-            Logger.error("Error when trying to load CMI Economy. Disable plugin.");
-        }
     }
 
     private void registerEvents() {
@@ -102,9 +86,13 @@ public class MineTail extends JavaPlugin {
                     Logger.error("Error registering event: " + ex.getMessage());
                 }
             }
-
-            getServer().getPluginManager().registerEvents(new MagicSpellsCast(), this);
         }
+    }
+
+    private void registerDependencies() {
+        commandManager.registerDependency(DatabaseManager.class, databaseManager);
+        commandManager.registerDependency(ServerManager.class, serverManager);
+        commandManager.registerDependency(ConfigManager.class, configManager);
     }
 
     public static ServerManager getServerManager() {
@@ -121,9 +109,5 @@ public class MineTail extends JavaPlugin {
 
     public HashMap<UUID, BossBar> getManaBars() {
         return manaBars;
-    }
-
-    public ManaHandler getManaHandler() {
-        return manaHandler;
     }
 }

@@ -21,7 +21,6 @@ import java.util.Arrays;
 public class PlayerJoin implements Listener {
 
     int count = 3;
-    public static Mage mage;
 
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
@@ -35,8 +34,9 @@ public class PlayerJoin implements Listener {
 
             @Override
             public void run() {
+                Mage mage = MineTail.getDatabaseManager().getMage(player.getUniqueId());
+
                 if (mage == null && count >= 0) {
-                    mage = MineTail.getDatabaseManager().getMage(player.getUniqueId());
                     Logger.debug("Попытка получить мага: " + count, true);
                     count--;
                 } else if (mage == null) {

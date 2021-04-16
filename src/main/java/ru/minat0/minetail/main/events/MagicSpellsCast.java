@@ -1,6 +1,8 @@
 package ru.minat0.minetail.main.events;
 
+import com.nisovin.magicspells.MagicSpells;
 import com.nisovin.magicspells.events.SpellCastEvent;
+import com.nisovin.magicspells.mana.ManaHandler;
 import com.sk89q.worldguard.LocalPlayer;
 import com.sk89q.worldguard.WorldGuard;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
@@ -8,12 +10,11 @@ import com.sk89q.worldguard.protection.regions.RegionContainer;
 import com.sk89q.worldguard.protection.regions.RegionQuery;
 import org.bukkit.ChatColor;
 import org.bukkit.boss.BossBar;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.scheduler.BukkitRunnable;
-import ru.minat0.minetail.core.Flags;
+import ru.minat0.minetail.core.worldguard.Flags;
 import ru.minat0.minetail.core.Mage;
 import ru.minat0.minetail.core.ManaBar;
 import ru.minat0.minetail.core.MineTail;
@@ -28,9 +29,13 @@ public class MagicSpellsCast implements Listener {
 
     @EventHandler(ignoreCancelled = true)
     public void castEvent(SpellCastEvent event) {
-        if (PlayerJoin.mage == null) return;
-
         Player player = (Player) event.getCaster();
+
+        Mage mage = MineTail.getDatabaseManager().getMage(player.getUniqueId());
+        if (mage == null) {
+            player.sendMessage(ChatColor.DARK_RED + "Вы не инициализованы на сервере как маг. Перезайдите!");
+            return;
+        }
 
         LocalPlayer localPlayer = WorldGuardPlugin.inst().wrapPlayer(player);
         RegionContainer container = WorldGuard.getInstance().getPlatform().getRegionContainer();
@@ -38,9 +43,6 @@ public class MagicSpellsCast implements Listener {
 
         Set<String> spellBlackList = query.queryValue(localPlayer.getLocation(), localPlayer, Flags.SPELL_BLACKLIST);
         Set<String> spellWhiteList = query.queryValue(localPlayer.getLocation(), localPlayer, Flags.SPELL_WHITELIST);
-
-        Mage mage = PlayerJoin.mage;
-        FileConfiguration config = MineTail.getConfiguration().getConfig();
 
         int cooldown = (int) event.getSpell().getCooldown(player);
         if (cooldown > 0) return;
@@ -63,8 +65,8 @@ public class MagicSpellsCast implements Listener {
         }
 
         if (!remainingTimer.containsKey(player)) {
-            MineTail plugin = MineTail.getInstance();
-            BossBar manaBar = plugin.getManaBars().get(player.getUniqueId());
+            ManaHandler manaHandler = MagicSpells.getManaHandler();
+            BossBar manaBar = MineTail.getInstance().getManaBars().get(player.getUniqueId());
 
             if (manaBar == null) return;
 
@@ -72,7 +74,7 @@ public class MagicSpellsCast implements Listener {
             new BukkitRunnable() {
                 @Override
                 public void run() {
-                    double remainingMana = (double) plugin.getManaHandler().getMana(player) / plugin.getManaHandler().getMaxMana(player);
+                    double remainingMana = (double) manaHandler.getMana(player) / manaHandler.getMaxMana(player);
                     manaBar.setProgress(remainingMana);
                     decreaseRemainingTimer(remainingTimer, player);
 
@@ -82,10 +84,10 @@ public class MagicSpellsCast implements Listener {
                         this.cancel();
                     }
                 }
-            }.runTaskTimer(plugin, 0, 20L);
+            }.runTaskTimer(MineTail.getInstance(), 0, 20L);
         }
 
-        remainingTimer.put(player, mage != null ? ManaBar.valueOf(mage.getManaBarAppearTime()).getTime() : config.getInt("disappearTime", 3));
+        remainingTimer.put(player, ManaBar.valueOf(mage.getManaBarAppearTime()).getTime());
     }
 
     void decreaseRemainingTimer(Map<Player, Integer> remainingTimer, Player player) {

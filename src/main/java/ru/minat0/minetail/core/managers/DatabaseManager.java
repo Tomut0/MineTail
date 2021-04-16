@@ -2,12 +2,12 @@ package ru.minat0.minetail.core.managers;
 
 import com.zaxxer.hikari.HikariDataSource;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import ru.minat0.minetail.core.Mage;
-import ru.minat0.minetail.core.MineTail;
 import ru.minat0.minetail.core.utils.Logger;
-import ru.minat0.minetail.core.utils.StringBuilder;
+import ru.minat0.minetail.core.utils.Helper;
 
 import java.io.File;
 import java.io.IOException;
@@ -22,21 +22,31 @@ import java.util.UUID;
  * https://github.com/RoinujNosde/TitansBattle/blob/master/src/main/java/me/roinujnosde/titansbattle/managers/DatabaseManager.java
  */
 public class DatabaseManager {
-    private final MineTail plugin = MineTail.getInstance();
-
-    final String dbName = "MineTail";
-    private Connection connection;
+    private final JavaPlugin plugin;
+    private final FileConfiguration config;
+    private HikariDataSource dataSource;
 
     private final Set<Mage> mages = new HashSet<>();
 
-    public void setup() {
-        try {
-            Statement statement = getConnection().createStatement();
+    public DatabaseManager(JavaPlugin plugin, FileConfiguration config, DBType type) {
+        this.plugin = plugin;
+        this.config = config;
+        this.dataSource = getDataSource(type);
+        setup();
+    }
+
+    public enum DBType {
+        SQLITE, MYSQL
+    }
+
+    private void setup() {
+        try (Connection connection = getConnection(); Statement statement = connection.createStatement()) {
             statement.execute("CREATE TABLE IF NOT EXISTS minetail_players "
                     + "(uuid varchar(36) NOT NULL,"
                     + "name varchar(16) NOT NULL,"
                     + "magicLevel int NOT NULL,"
-                    + "rank varchar(255) NULL,"
+                    + "experience int DEFAULT 0 NOT NULL,"
+                    + "magicRank varchar(255) NULL,"
                     + "magicClass varchar(16) NULL,"
                     + "manaBarColor varchar(16) NOT NULL,"
                     + "manaBarAppearTime varchar(16) NOT NULL,"
@@ -48,71 +58,59 @@ public class DatabaseManager {
         }
     }
 
-    private Connection getConnection() throws SQLException {
-        if (connection == null || connection.isClosed()) {
-            initialize();
-        }
+    private HikariDataSource getDataSource(DBType type) {
+        dataSource = new HikariDataSource();
+        dataSource.setMaximumPoolSize(20);
+        dataSource.addDataSourceProperty("cachePrepStmts", "true");
+        dataSource.addDataSourceProperty("prepStmtCacheSize", "250");
+        dataSource.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
 
-        return connection;
+        switch (type) {
+            case SQLITE:
+                File SQLFile = createFileIfNotExist();
+                dataSource.setDriverClassName("org.sqlite.JDBC");
+                dataSource.setJdbcUrl("jdbc:sqlite:" + SQLFile);
+                return dataSource;
+            case MYSQL:
+                String database = config.getString("DataSource.mySQLDatabase");
+                String hostname = config.getString("DataSource.mySQLHost");
+                String port = config.getString("DataSource.mySQLPort");
+                String username = config.getString("DataSource.mySQLUsername");
+                String password = config.getString("DataSource.mySQLPassword");
+                dataSource.setUsername(username);
+                dataSource.setPassword(password);
+                dataSource.setJdbcUrl("jdbc:mysql://" + hostname + ":" + port + "/" + database + "?useSSL=false&characterEncoding=utf-8&autoReconnect=true");
+                return dataSource;
+            default:
+                Logger.warning("Unable to get type of database connection, please check \"DataSource.backend\" in config.yml! Using SQLite instead...");
+                return getDataSource(DBType.SQLITE);
+        }
     }
 
-    private void initialize() throws SQLException {
-        HikariDataSource ds = new HikariDataSource();
-        FileConfiguration config = MineTail.getConfiguration().getConfig();
+    public Connection getConnection() throws SQLException {
+        return dataSource.getConnection();
+    }
 
-        String dbType = config.getString("DataSource.backend", "SQLITE");
+    @SuppressWarnings("ResultOfMethodCallIgnored")
+    File createFileIfNotExist() {
+        File sqlFile = new File(plugin.getDataFolder(), plugin.getDescription().getName() + ".db");
 
-        assert dbType != null;
-        if (!dbType.equalsIgnoreCase("mysql") && !dbType.equalsIgnoreCase("sqlite")) {
-            Logger.warning("Error while getting the type of DB, please check \"DataSource.backend\" in config.yml! Using SQLite instead...");
-            dbType = "SQLITE";
+        if (!sqlFile.exists()) {
+            try {
+                sqlFile.createNewFile();
+                return sqlFile;
+            } catch (IOException ex) {
+                Logger.error("File write error: " + plugin.getDescription().getName() + ".db");
+            }
         }
 
-        if (dbType.equalsIgnoreCase("MYSQL")) {
-            String database = config.getString("DataSource.mySQLDatabase");
-            String hostname = config.getString("DataSource.mySQLHost");
-            String port = config.getString("DataSource.mySQLPort");
-
-            ds.setUsername(config.getString("DataSource.mySQLUsername"));
-            ds.setPassword(config.getString("DataSource.mySQLPassword"));
-            ds.setMaximumPoolSize(20);
-            ds.setDriverClassName("org.mariadb.jdbc.Driver");
-            ds.setJdbcUrl("jdbc:mariadb://" + hostname + ":" + port + "/" + database);
-            ds.addDataSourceProperty("cachePrepStmts", "true");
-            ds.addDataSourceProperty("prepStmtCacheSize", "250");
-            ds.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
-            ds.setIdleTimeout(1800000);
-
-            try {
-                connection = ds.getConnection();
-            } catch (SQLException ex) {
-                Logger.error("Error while trying to establish database connection: " + ex.getMessage());
-            }
-        } else {
-            File sqlFile = new File(plugin.getDataFolder(), dbName + ".db");
-
-            if (!sqlFile.exists()) {
-                try {
-                    sqlFile.createNewFile();
-                } catch (IOException ex) {
-                    Logger.error("File write error: " + dbName + ".db");
-                }
-            }
-
-            try {
-                ds.setDriverClassName("org.sqlite.JDBC");
-                ds.setJdbcUrl("jdbc:sqlite:" + sqlFile);
-                connection = ds.getConnection();
-            } catch (SQLException ex) {
-                Logger.error("SQLite driver not found!");
-            }
-        }
+        return sqlFile;
     }
 
     public void update(@NotNull Mage mage) {
         String uuid = mage.getUniqueId().toString();
 
-        String update = "UPDATE minetail_players SET name=?, magicLevel=?, rank=?, magicClass=?, manaBarColor=?, manaBarAppearTime=?, Spells=? WHERE uuid=?;";
+        String update = "UPDATE minetail_players SET name=?, magicLevel=?, magicRank=?, magicClass=?, manaBarColor=?, manaBarAppearTime=?, Spells=? WHERE uuid=?;";
         try (PreparedStatement statement = getConnection().prepareStatement(update)) {
             statement.setString(1, mage.getName());
             statement.setInt(2, mage.getMagicLevel());
@@ -120,7 +118,7 @@ public class DatabaseManager {
             statement.setString(4, mage.getMagicClass());
             statement.setString(5, mage.getManaBarColor());
             statement.setString(6, mage.getManaBarAppearTime());
-            statement.setString(7, StringBuilder.serialize(mage.getSpells()));
+            statement.setString(7, Helper.serialize(mage.getSpells()));
             statement.setString(8, uuid);
 
             statement.execute();
@@ -131,7 +129,7 @@ public class DatabaseManager {
 
 
     public void update(@NotNull Set<Mage> mageSet) {
-        String update = "UPDATE minetail_players SET name=?, magicLevel=?, rank=?, magicClass=?, manaBarColor=?, manaBarAppearTime=?, Spells=? WHERE uuid=?;";
+        String update = "UPDATE minetail_players SET name=?, magicLevel=?, magicRank=?, magicClass=?, manaBarColor=?, manaBarAppearTime=?, Spells=? WHERE uuid=?;";
         Logger.debug("Mages: " + mageSet.size(), false);
         for (Mage mage : mageSet) {
             if (mage.changed) {
@@ -144,7 +142,7 @@ public class DatabaseManager {
                     statement.setString(4, mage.getMagicClass());
                     statement.setString(5, mage.getManaBarColor());
                     statement.setString(6, mage.getManaBarAppearTime());
-                    statement.setString(7, StringBuilder.serialize(mage.getSpells()));
+                    statement.setString(7, Helper.serialize(mage.getSpells()));
                     statement.setString(8, uuid);
                     statement.execute();
                 } catch (SQLException ex) {
@@ -169,7 +167,7 @@ public class DatabaseManager {
     public void insert(@NotNull Mage mage) {
         String uuid = mage.getUniqueId().toString();
 
-        String insert = "INSERT INTO minetail_players (uuid, name, magicLevel, rank, magicClass, manaBarColor, manaBarAppearTime, Spells) VALUES (?, ?, ?, ?, ?, ?, ?, ?);";
+        String insert = "INSERT INTO minetail_players (uuid, name, magicLevel, magicRank, magicClass, manaBarColor, manaBarAppearTime, Spells) VALUES (?, ?, ?, ?, ?, ?, ?, ?);";
         try (PreparedStatement statement = getConnection().prepareStatement(insert)) {
             statement.setString(1, uuid);
             statement.setString(2, mage.getName());
@@ -178,7 +176,7 @@ public class DatabaseManager {
             statement.setString(5, mage.getMagicClass());
             statement.setString(6, mage.getManaBarColor());
             statement.setString(7, mage.getManaBarAppearTime());
-            statement.setString(8, StringBuilder.serialize(mage.getSpells()));
+            statement.setString(8, Helper.serialize(mage.getSpells()));
             statement.execute();
             mages.add(mage);
         } catch (SQLException ex) {
@@ -194,11 +192,11 @@ public class DatabaseManager {
             while (rs.next()) {
                 UUID uuid = UUID.fromString(rs.getString("uuid"));
                 Integer magicLevel = rs.getInt("magicLevel");
-                String rank = rs.getString("rank");
+                String rank = rs.getString("magicRank");
                 String magicClass = rs.getString("magicClass");
                 String manaBarColor = rs.getString("manaBarColor");
                 String manaBarAppearTime = rs.getString("manaBarAppearTime");
-                String[] Spells = StringBuilder.unserialize(rs.getString("Spells"));
+                String[] Spells = Helper.unserialize(rs.getString("Spells"));
 
                 Mage mage = new Mage(uuid, magicLevel, rank, magicClass, manaBarColor, manaBarAppearTime, Spells);
                 mages.add(mage);
@@ -217,26 +215,6 @@ public class DatabaseManager {
         }
 
         return null;
-    }
-
-    public void close(PreparedStatement ps, ResultSet rs) {
-        try {
-            if (ps != null)
-                ps.close();
-            if (rs != null)
-                rs.close();
-        } catch (SQLException ex) {
-            Logger.error("Failed to close SQL connection: " + ex.getMessage());
-        }
-    }
-
-    public void close(PreparedStatement ps) {
-        try {
-            if (ps != null)
-                ps.close();
-        } catch (SQLException ex) {
-            Logger.error("Failed to close SQL connection: " + ex.getMessage());
-        }
     }
 
     public Set<Mage> getMages() {

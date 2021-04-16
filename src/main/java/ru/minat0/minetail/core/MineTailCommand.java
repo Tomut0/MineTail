@@ -12,6 +12,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import ru.minat0.minetail.core.conversation.TailConversation;
 import ru.minat0.minetail.core.inventories.RegisterInventory;
+import ru.minat0.minetail.core.managers.DatabaseManager;
+import ru.minat0.minetail.core.managers.ServerManager;
 import ru.minat0.minetail.main.RandomKit;
 import ru.minat0.minetail.main.prompts.ConfirmClassChange;
 
@@ -19,6 +21,11 @@ import ru.minat0.minetail.main.prompts.ConfirmClassChange;
 @CommandAlias("mt|minetail")
 public class MineTailCommand extends BaseCommand {
     private final MineTail plugin;
+
+    @Dependency
+    private DatabaseManager databaseManager;
+    @Dependency
+    private ServerManager serverManager;
 
     public MineTailCommand(Plugin instance) {
         this.plugin = ((MineTail) instance);
@@ -153,6 +160,11 @@ public class MineTailCommand extends BaseCommand {
         @Default
         @CommandPermission("minetail.player.register")
         public void onRegister(Player player) {
+            if (MineTail.getServerManager().isMaintenance()) {
+                player.sendMessage(ChatColor.DARK_RED + "Сервер находиться на техническом обслуживании, вход временно недоступен!");
+                return;
+            }
+
             RegisterInventory regInv = new RegisterInventory(player);
             regInv.getGUI().show(player);
         }

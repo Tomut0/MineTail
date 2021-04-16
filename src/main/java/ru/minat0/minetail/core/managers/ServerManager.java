@@ -2,9 +2,8 @@ package ru.minat0.minetail.core.managers;
 
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
-import net.md_5.bungee.api.ProxyServer;
-import net.md_5.bungee.api.config.ServerInfo;
 import org.bukkit.Bukkit;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import ru.minat0.minetail.core.Mage;
 import ru.minat0.minetail.core.MineTail;
@@ -35,23 +34,9 @@ public class ServerManager {
         }
     }
 
-    /**
-     * Used on BungeeCord
-     *
-     * @param serverName - server to player teleport
-     * @return True if server online
-     */
-    public boolean isOnlineBungee(String serverName) {
-        ServerInfo server = ProxyServer.getInstance().getServerInfo(serverName);
-
-        final boolean[] isOnline = new boolean[1];
-        server.ping((result, error) ->
-        {
-            if (error != null) isOnline[0] = true;
-            isOnline[0] = false;
-        });
-
-        return isOnline[0];
+    public boolean isMaintenance() {
+        FileConfiguration config = MineTail.getConfiguration().getConfig();
+        return config.getBoolean("maintenance", false);
     }
 
     /**
@@ -128,18 +113,6 @@ public class ServerManager {
         out.write(msgbytes.toByteArray());
 
         player.sendPluginMessage(MineTail.getInstance(), "BungeeCord", out.toByteArray());
-    }
-
-    public void getPlayerCount(String server) {
-        ByteArrayOutputStream b = new ByteArrayOutputStream();
-        DataOutputStream out = new DataOutputStream(b);
-
-        try {
-            out.writeUTF("PlayerCount");
-            out.writeUTF(server);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 
     public boolean isAuthServer() {
