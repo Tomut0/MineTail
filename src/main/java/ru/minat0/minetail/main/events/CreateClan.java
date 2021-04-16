@@ -17,13 +17,11 @@ public class CreateClan implements Listener {
     @EventHandler
     public void onCreate(CreateClanEvent event) {
         Clan clan = event.getClan();
+
         Player player = clan.getLeaders().get(0).toPlayer();
+        if (player == null) return;
 
-        if (player == null) {
-            return;
-        }
         Mage mage = MineTail.getDatabaseManager().getMage(player.getUniqueId());
-
         if (mage == null) return;
 
         for (Ranks rankName : Ranks.values()) {

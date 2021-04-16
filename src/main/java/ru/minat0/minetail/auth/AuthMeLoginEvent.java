@@ -25,10 +25,8 @@ public class AuthMeLoginEvent implements Listener {
         }
 
         if (MineTail.getServerManager().isOnline(config.getString("host"), config.getInt("port"))) {
-            if (MineTail.getDatabaseManager().getMage(p.getUniqueId()) != null) {
-                p.sendMessage(ChatColor.YELLOW + "Подключаемся к серверу FairyTail");
-                MineTail.getServerManager().teleportToServer(p, "fairy");
-            }
+            p.sendMessage(ChatColor.YELLOW + "Подключаемся к серверу FairyTail");
+            MineTail.getServerManager().teleportToServer(p, "fairy");
         } else {
             final @NonNull TextComponent textComponent = Component.text("Сервер, на который вы пытаетесь зайти – ")
                     .append(Component.text("недоступен в данный момент.", NamedTextColor.DARK_RED)

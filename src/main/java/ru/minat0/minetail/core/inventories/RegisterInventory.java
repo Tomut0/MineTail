@@ -24,12 +24,11 @@ public class RegisterInventory extends Inventory {
 
     @Override
     public void addGUIElements() {
-        boolean mageRegistered = MineTail.getDatabaseManager().getMages().stream().anyMatch(mage -> mage.getUniqueId().equals(who.getUniqueId()));
         ArrayList<GuiElement> guiElements = new ArrayList<>();
 
-        if (mageRegistered) {
+        if (Helper.isMageRegistered(player)) {
             guiElements.add(new StaticGuiElement('l', new ItemStack(Material.ENDER_PEARL), click -> {
-                MineTail.getServerManager().teleportToServer(who, "fairy");
+                MineTail.getServerManager().teleportToServer(player, "fairy");
                 getGUI().close();
                 return true;
             }, "Телепортироваться на Земной Край"));
@@ -44,8 +43,10 @@ public class RegisterInventory extends Inventory {
                     Material material = Objects.requireNonNull(Material.getMaterial(materialName));
                     char key = keyString.charAt(0);
 
-                    guiElements.add(new StaticGuiElement(key, new ItemStack(material), click -> register(who, magic_class),
-                            lore.stream().map(String -> Helper.getFormattedString(who, String)).toArray(String[]::new)));
+                    guiElements.add(new StaticGuiElement(key, new ItemStack(material), click -> {
+                        register(player, magic_class);
+                        return true;
+                    }, lore.stream().map(String -> Helper.getFormattedString(player, String)).toArray(String[]::new)));
                 }
             }
         }
@@ -53,7 +54,7 @@ public class RegisterInventory extends Inventory {
         getGUI().addElements(guiElements);
     }
 
-    boolean register(Player player, Mage.MAGIC_CLASS magicClass) {
+    void register(Player player, Mage.MAGIC_CLASS magicClass) {
         RandomKit randomKit = RandomKit.getSorted(magicClass).get(RandomKit.random(magicClass));
         Logger.debug(randomKit.getName() + " | " + randomKit.getMagicClass() + " | " + randomKit.getRare(), false);
         Mage mage = new Mage(player.getUniqueId(), config.getInt("magicLevel"), null, magicClass.name(),
@@ -61,6 +62,5 @@ public class RegisterInventory extends Inventory {
         MineTail.getDatabaseManager().insert(mage);
         MineTail.getServerManager().sendForwardMage(player, "fairy", "DatabaseChannel", "MageSetInsert", mage);
         MineTail.getServerManager().teleportToServer(player, "fairy");
-        return true;
     }
 }

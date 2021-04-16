@@ -18,10 +18,10 @@ public abstract class Inventory {
     protected final FileConfiguration config = MineTail.getConfiguration().getConfig();
 
     private final InventoryGui gui;
-    protected final Player who;
+    protected final Player player;
 
     public Inventory(@NotNull Player sender, @NotNull String path, boolean hasFilter) {
-        this.who = sender;
+        this.player = sender;
         gui = new InventoryGui(plugin, getOwner(), getTitle(path), getInventoryFormat(path));
         addGUIElements();
         if (hasFilter) {
@@ -33,8 +33,8 @@ public abstract class Inventory {
 
     @NotNull
     public String getTitle(String path) {
-        String title = config.getString(path + ".title");
-        return Helper.getFormattedString(who, Objects.requireNonNull(title, this.getClass().getSimpleName() + " | Couldn't found title!"));
+        String title = Objects.requireNonNull(config.getString(path + ".title", this.getClass().getSimpleName() + " | Couldn't found title!"));
+        return Helper.getFormattedString(player, title);
     }
 
     @Nullable

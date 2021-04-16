@@ -5,6 +5,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import ru.minat0.minetail.core.MineTail;
 
 import java.util.StringTokenizer;
 
@@ -17,6 +18,10 @@ public class Helper {
 
     public static String getFormattedString(@NotNull String String) {
         return getFormattedString(null, String);
+    }
+
+    public static boolean isMageRegistered(@NotNull Player player) {
+        return MineTail.getDatabaseManager().getMages().stream().anyMatch(mage -> mage.getUniqueId().equals(player.getUniqueId()));
     }
 
     public static String serialize(@NotNull String[] strs) {
