@@ -6,7 +6,7 @@
 
     <groupId>ru.minat0</groupId>
     <artifactId>MineTail</artifactId>
-    <version>1.1.8-SNAPSHOT</version>
+    <version>1.2.6-SNAPSHOT</version>
 
     <build>
         <!-- Resources -->
@@ -42,6 +42,7 @@
                             <shadedPattern>ru.minat0.api</shadedPattern>
                         </relocation>
                     </relocations>
+
                 </configuration>
                 <executions>
                     <execution>
@@ -60,6 +61,13 @@
                 <configuration>
                     <source>11</source>
                     <target>11</target>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>io.ebean</groupId>
+                            <artifactId>querybean-generator</artifactId>
+                            <version>12.8.0</version>
+                        </path>
+                    </annotationProcessorPaths>
                 </configuration>
             </plugin>
 
@@ -232,6 +240,14 @@
             <scope>provided</scope>
         </dependency>
 
+        <!-- Ebean -->
+        <dependency>
+            <groupId>io.ebean</groupId>
+            <artifactId>ebean</artifactId>
+            <version>12.8.0</version>
+            <scope>compile</scope>
+        </dependency>
+
         <!-- Testing modules -->
         <!-- https://junit.org/junit5/docs/current/user-guide/#running-tests-ide-intellij-idea -->
         <dependency>
@@ -260,6 +276,19 @@
             <artifactId>javassist</artifactId>
             <version>3.18.2-GA</version>
             <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>io.ebean</groupId>
+            <artifactId>ebean-test</artifactId>
+            <version>12.8.0</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+            <version>2.10.1</version>
         </dependency>
     </dependencies>
 </project>
