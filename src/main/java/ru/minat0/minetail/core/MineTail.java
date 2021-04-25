@@ -1,6 +1,7 @@
 package ru.minat0.minetail.core;
 
 import co.aikar.commands.PaperCommandManager;
+import com.sk89q.jnbt.CompoundTagBuilder;
 import org.bukkit.Bukkit;
 import org.bukkit.boss.BossBar;
 import org.bukkit.event.Listener;
@@ -10,24 +11,33 @@ import ru.minat0.minetail.auth.AuthMeLoginEvent;
 import ru.minat0.minetail.core.managers.ConfigManager;
 import ru.minat0.minetail.core.managers.DatabaseManager;
 import ru.minat0.minetail.core.managers.ServerManager;
+import ru.minat0.minetail.core.storage.MageDao;
 import ru.minat0.minetail.core.utils.Logger;
 import ru.minat0.minetail.core.worldguard.Flags;
-import ru.minat0.minetail.main.RandomKit;
+import ru.minat0.minetail.auth.RandomKit;
 
+import java.sql.SQLException;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
 public class MineTail extends JavaPlugin {
     private static MineTail instance;
+    private static MageDao mageDao;
 
     private static ConfigManager configManager;
     private static ServerManager serverManager;
     private static DatabaseManager databaseManager;
     private static PaperCommandManager commandManager;
+    public static final Map<Integer, Integer> levelMap = new HashMap<>();
 
     public static MineTail getInstance() {
         return instance;
+    }
+
+    public static MageDao getMageDao() {
+        return mageDao;
     }
 
     private final HashMap<UUID, BossBar> manaBars = new HashMap<>();
@@ -49,11 +59,21 @@ public class MineTail extends JavaPlugin {
         registerEvents();
         registerDependencies();
         commandManager.registerCommand(new MineTailCommand(instance), true);
+
+        try {
+            mageDao = new MageDao(databaseManager.getConnection());
+            mageDao.loadMages();
+        } catch (SQLException exception) {
+            exception.printStackTrace();
+        }
+
+        RandomKit.loadKits();
+        levelSetup();
     }
 
     @Override
     public void onDisable() {
-        MineTail.getDatabaseManager().update(MineTail.getDatabaseManager().getMages());
+        mageDao.updateAll();
     }
 
     private void registerManagers() {
@@ -64,11 +84,7 @@ public class MineTail extends JavaPlugin {
         commandManager.enableUnstableAPI("help");
 
         serverManager = new ServerManager();
-
         databaseManager = new DatabaseManager(this, configManager.getConfig(), DatabaseManager.DBType.valueOf(configManager.getConfig().getString("DataSource.backend")));
-        databaseManager.loadDataToMemory();
-
-        RandomKit.loadKits();
     }
 
     private void registerEvents() {
@@ -86,6 +102,14 @@ public class MineTail extends JavaPlugin {
                     Logger.error("Error registering event: " + ex.getMessage());
                 }
             }
+        }
+    }
+
+    public void levelSetup() {
+        for (int lvl = 1; lvl <= getConfiguration().getConfig().getInt("maxLevel"); lvl++) {
+            int exp = (int) (10 * Math.pow(lvl + 10, 2) + 1000);
+            levelMap.put(lvl, exp);
+            Logger.debug(String.valueOf(levelMap.get(lvl)), true);
         }
     }
 

@@ -28,25 +28,25 @@ public class PluginMessage implements PluginMessageListener {
                 String argument = msgin.readUTF();
                 switch (argument) {
                     case "Reload":
-                        MineTail.getDatabaseManager().getMages().clear();
-                        MineTail.getDatabaseManager().loadDataToMemory();
+                        MineTail.getMageDao().getAll().clear();
+                        MineTail.getMageDao().loadMages();
                         break;
                     case "MageSetInsert":
                         Mage deserializedMage = Mage.deserialize(msgin.readAllBytes());
-                        Mage mage = MineTail.getDatabaseManager().getMage(player.getUniqueId());
+                        Mage mage = MineTail.getMageDao().get(player.getUniqueId()).orElse(null);
 
                         if (deserializedMage != null) {
                             if (mage != null) {
-                                boolean remove = MineTail.getDatabaseManager().getMages().remove(mage);
+                                boolean remove = MineTail.getMageDao().getAll().remove(mage);
                                 Logger.debug("Remove set: " + remove, false);
                             }
-                            boolean add = MineTail.getDatabaseManager().getMages().add(deserializedMage);
+                            boolean add = MineTail.getMageDao().getAll().add(deserializedMage);
                             Logger.debug("Add set: " + add, false);
                         } else Logger.debug("There is no deserialized mage: " + player.getName(), false);
                         break;
                     case "MageSetDelete":
-                        if (MineTail.getDatabaseManager().getMage(player.getUniqueId()) != null) {
-                            MineTail.getDatabaseManager().getMages().remove(Mage.deserialize(msgin.readAllBytes()));
+                        if (MineTail.getMageDao().get(player.getUniqueId()).isPresent()) {
+                            MineTail.getMageDao().getAll().remove(Mage.deserialize(msgin.readAllBytes()));
                         }
                         break;
                 }

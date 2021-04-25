@@ -10,7 +10,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import ru.minat0.minetail.core.Mage;
 import ru.minat0.minetail.core.MineTail;
-import ru.minat0.minetail.core.Ranks;
 
 public class CreateClan implements Listener {
 
@@ -21,17 +20,17 @@ public class CreateClan implements Listener {
         Player player = clan.getLeaders().get(0).toPlayer();
         if (player == null) return;
 
-        Mage mage = MineTail.getDatabaseManager().getMage(player.getUniqueId());
+        Mage mage = MineTail.getMageDao().get(player.getUniqueId()).orElse(null);
         if (mage == null) return;
 
-        for (Ranks rankName : Ranks.values()) {
+        for (Mage.ranks rankName : Mage.ranks.values()) {
             clan.createRank(rankName.name());
         }
 
         long completedQuests = PlayersManagerDB.getPlayerAccount(player).getQuestsDatas().stream().filter(PlayerQuestDatas::isFinished).count();
         player.sendMessage(completedQuests + "");
-        for (Ranks rank : Ranks.values()) {
-            if (completedQuests >= rank.getQuestCompleted() && mage.getMagicLevel() >= rank.getMagicLevel()) {
+        for (Mage.ranks rank : Mage.ranks.values()) {
+            if (completedQuests >= rank.getQuestCompleted() && mage.getMagicLVL() >= rank.getMagicLevel()) {
                 clan.getLeaders().get(0).setRank(rank.name());
             }
         }

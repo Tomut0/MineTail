@@ -6,7 +6,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import ru.minat0.minetail.core.Ranks;
+import ru.minat0.minetail.core.Mage;
 
 public class DeleteRank implements Listener {
 
@@ -15,7 +15,7 @@ public class DeleteRank implements Listener {
         Rank rank = event.getRank();
         Player sender = event.getPlayer();
 
-        for (Ranks rankName : Ranks.values()) {
+        for (Mage.ranks rankName : Mage.ranks.values()) {
             if (rankName.name().equals(rank.getName())) {
                 sender.sendMessage(ChatColor.DARK_RED + "Вы не можете удалить этот ранг!");
                 event.setCancelled(true);

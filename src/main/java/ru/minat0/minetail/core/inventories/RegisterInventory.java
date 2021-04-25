@@ -6,11 +6,10 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import ru.minat0.minetail.core.Mage;
-import ru.minat0.minetail.core.ManaBar;
 import ru.minat0.minetail.core.MineTail;
 import ru.minat0.minetail.core.utils.Helper;
 import ru.minat0.minetail.core.utils.Logger;
-import ru.minat0.minetail.main.RandomKit;
+import ru.minat0.minetail.auth.RandomKit;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,8 +32,8 @@ public class RegisterInventory extends Inventory {
                 return true;
             }, "Телепортироваться на Земной Край"));
         } else {
-            for (Mage.MAGIC_CLASS magic_class : Mage.MAGIC_CLASS.values()) {
-                String path = "GUI.register.items." + magic_class.name();
+            for (Mage.magicClass magicClass : Mage.magicClass.values()) {
+                String path = "GUI.register.items." + magicClass.name();
                 String materialName = config.getString(path + ".material");
                 List<String> lore = config.getStringList(path + ".lore");
                 String keyString = config.getString(path + ".key");
@@ -44,7 +43,7 @@ public class RegisterInventory extends Inventory {
                     char key = keyString.charAt(0);
 
                     guiElements.add(new StaticGuiElement(key, new ItemStack(material), click -> {
-                        register(player, magic_class);
+                        register(player, magicClass);
                         return true;
                     }, lore.stream().map(String -> Helper.getFormattedString(player, String)).toArray(String[]::new)));
                 }
@@ -54,12 +53,11 @@ public class RegisterInventory extends Inventory {
         getGUI().addElements(guiElements);
     }
 
-    void register(Player player, Mage.MAGIC_CLASS magicClass) {
+    void register(Player player, Mage.magicClass magicClass) {
         RandomKit randomKit = RandomKit.getSorted(magicClass).get(RandomKit.random(magicClass));
         Logger.debug(randomKit.getName() + " | " + randomKit.getMagicClass() + " | " + randomKit.getRare(), false);
-        Mage mage = new Mage(player.getUniqueId(), config.getInt("magicLevel"), null, magicClass.name(),
-                config.getString("bossBarDefaultColor", "PINK"), ManaBar.MEDIUM.name(), randomKit.getSpells());
-        MineTail.getDatabaseManager().insert(mage);
+        Mage mage = new Mage(player.getUniqueId(), magicClass.name(), randomKit.getName(), randomKit.getRare().getDisplayName(), randomKit.getSpells());
+        MineTail.getMageDao().create(mage);
         MineTail.getServerManager().sendForwardMage(player, "fairy", "DatabaseChannel", "MageSetInsert", mage);
         MineTail.getServerManager().teleportToServer(player, "fairy");
     }

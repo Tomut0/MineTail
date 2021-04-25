@@ -16,8 +16,6 @@ import ru.minat0.minetail.core.Mage;
 import ru.minat0.minetail.core.MineTail;
 import ru.minat0.minetail.core.utils.Logger;
 
-import java.util.Arrays;
-
 public class PlayerJoin implements Listener {
 
     int count = 3;
@@ -34,24 +32,22 @@ public class PlayerJoin implements Listener {
 
             @Override
             public void run() {
-                Mage mage = MineTail.getDatabaseManager().getMage(player.getUniqueId());
+                Mage mage = MineTail.getMageDao().get(player.getUniqueId()).orElse(null);
 
                 if (mage == null && count >= 0) {
                     Logger.debug("Попытка получить мага: " + count, true);
                     count--;
                 } else if (mage == null) {
                     Logger.debug("Неуспешно! Force DB updated!", true);
-                    MineTail.getDatabaseManager().getMages().clear();
-                    MineTail.getDatabaseManager().loadDataToMemory();
+                    MineTail.getMageDao().getAll().clear();
+                    MineTail.getMageDao().loadMages();
                     count = 3;
                 } else {
                     Logger.debug("Успешно!", true);
 
-                    BarColor barColor = BarColor.valueOf(mage.getManaBarColor());
+                    BarColor barColor = BarColor.valueOf(mage.getSettings().get(Mage.SETTINGS.MANABARCOLOR.name()));
                     BossBar manaBar = Bukkit.createBossBar("Мана", barColor, BarStyle.SOLID);
                     plugin.getManaBars().put(player.getUniqueId(), manaBar);
-
-                    Logger.debug(Arrays.toString(mage.getSpells()), true);
 
                     for (String spellName : mage.getSpells()) {
                         if (spellBook.getSpellByName(spellName) == null) {

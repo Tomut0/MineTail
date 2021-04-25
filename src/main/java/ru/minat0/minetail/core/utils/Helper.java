@@ -21,7 +21,7 @@ public class Helper {
     }
 
     public static boolean isMageRegistered(@NotNull Player player) {
-        return MineTail.getDatabaseManager().getMages().stream().anyMatch(mage -> mage.getUniqueId().equals(player.getUniqueId()));
+        return MineTail.getMageDao().getAll().stream().anyMatch(mage -> mage.getUniqueId().equals(player.getUniqueId()));
     }
 
     public static String serialize(@NotNull String[] strs) {

@@ -25,12 +25,12 @@ public class ConfirmClassChange extends StringPrompt {
     private final OfflinePlayer offlinePlayer;
     private final Mage mage;
 
-    private final int PRICE = 2500000;
+    private final int PRICE = 500000;
 
     public ConfirmClassChange(UUID uuid) {
         this.player = Bukkit.getPlayer(uuid);
         this.offlinePlayer = Bukkit.getOfflinePlayer(uuid);
-        this.mage = MineTail.getDatabaseManager().getMage(uuid);
+        this.mage = MineTail.getMageDao().get(uuid).orElseThrow();
     }
 
     @NotNull
@@ -49,13 +49,13 @@ public class ConfirmClassChange extends StringPrompt {
     public Prompt acceptInput(@NotNull ConversationContext conversationContext, @Nullable String input) {
         if (input != null && input.equalsIgnoreCase("Да")) {
             if (mage != null) {
-                if (Economy.has(offlinePlayer, PRICE) && mage.getMagicLevel() >= 10) {
-                    MineTail.getDatabaseManager().delete(mage);
+                if (Economy.has(offlinePlayer, PRICE) && mage.getMagicLVL() >= 10) {
+                    MineTail.getMageDao().delete(mage.getUniqueId());
                     Economy.withdrawPlayer(offlinePlayer, PRICE);
-                    mage.setMagicLevel(1);
+                    mage.setMagicLVL(1);
                     mage.setSpells(null);
                     MineTail.getServerManager().sendForwardMage(player, "lobby", "DatabaseChannel", "MageSetDelete", mage);
-                    MineTail.getDatabaseManager().getMages().remove(mage);
+                    MineTail.getMageDao().getAll().remove(mage);
                     MineTail.getServerManager().teleportToServer(player, "lobby");
                 }
             }
@@ -68,6 +68,6 @@ public class ConfirmClassChange extends StringPrompt {
     }
 
     String isHaveMagicLevel() {
-        return mage != null ? mage.getMagicLevel() >= 10 ? "<green>✓</green>" : "<red>Вам не хватает " + (10 - mage.getMagicLevel()) + " уровней! </red>" : null;
+        return mage != null ? mage.getMagicLVL() >= 10 ? "<green>✓</green>" : "<red>Вам не хватает " + (10 - mage.getMagicLVL()) + " уровней! </red>" : null;
     }
 }

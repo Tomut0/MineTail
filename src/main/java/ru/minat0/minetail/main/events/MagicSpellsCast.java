@@ -2,25 +2,29 @@ package ru.minat0.minetail.main.events;
 
 import com.nisovin.magicspells.MagicSpells;
 import com.nisovin.magicspells.events.SpellCastEvent;
+import com.nisovin.magicspells.events.SpellTargetEvent;
 import com.nisovin.magicspells.mana.ManaHandler;
 import com.sk89q.worldguard.LocalPlayer;
 import com.sk89q.worldguard.WorldGuard;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import com.sk89q.worldguard.protection.regions.RegionContainer;
 import com.sk89q.worldguard.protection.regions.RegionQuery;
+import net.kyori.adventure.audience.Audience;
+import net.kyori.adventure.text.Component;
 import org.bukkit.ChatColor;
 import org.bukkit.boss.BossBar;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.scheduler.BukkitRunnable;
-import ru.minat0.minetail.core.worldguard.Flags;
 import ru.minat0.minetail.core.Mage;
-import ru.minat0.minetail.core.ManaBar;
 import ru.minat0.minetail.core.MineTail;
+import ru.minat0.minetail.core.worldguard.Flags;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 public class MagicSpellsCast implements Listener {
@@ -31,7 +35,7 @@ public class MagicSpellsCast implements Listener {
     public void castEvent(SpellCastEvent event) {
         Player player = (Player) event.getCaster();
 
-        Mage mage = MineTail.getDatabaseManager().getMage(player.getUniqueId());
+        Mage mage = MineTail.getMageDao().get(player.getUniqueId()).orElse(null);
         if (mage == null) {
             player.sendMessage(ChatColor.DARK_RED + "Вы не инициализованы на сервере как маг. Перезайдите!");
             return;
@@ -87,7 +91,29 @@ public class MagicSpellsCast implements Listener {
             }.runTaskTimer(MineTail.getInstance(), 0, 20L);
         }
 
-        remainingTimer.put(player, ManaBar.valueOf(mage.getManaBarAppearTime()).getTime());
+        remainingTimer.put(player, Mage.manaBarTime.valueOf(mage.getSettings().get(Mage.SETTINGS.MANABARTIME.name())).getTime());
+    }
+
+    @EventHandler
+    public void onTarget(SpellTargetEvent event) {
+        Optional<Mage> optionalMage = MineTail.getMageDao().get(event.getCaster().getUniqueId());
+
+        if (optionalMage.isPresent()) {
+            FileConfiguration config = MineTail.getConfiguration().getConfig();
+            Mage mage = optionalMage.get();
+
+            if (mage.getMagicLVL() < config.getInt("maxLevel")) {
+                int spellExp = config.getInt("spellsExp." + event.getSpell().getName(), 10);
+                mage.setMagicEXP(mage.getMagicEXP() + spellExp);
+
+                if (mage.getMagicEXP() >= MineTail.levelMap.get(mage.getMagicLVL())) {
+                    mage.setMagicEXP(0);
+                    mage.setMagicLVL(mage.getMagicLVL() + 1);
+                }
+
+                Audience.audience(event.getCaster()).sendActionBar(Component.text("Ваш опыт: " + mage.getMagicEXP()));
+            }
+        }
     }
 
     void decreaseRemainingTimer(Map<Player, Integer> remainingTimer, Player player) {

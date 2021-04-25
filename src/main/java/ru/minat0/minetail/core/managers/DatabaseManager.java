@@ -3,18 +3,16 @@ package ru.minat0.minetail.core.managers;
 import com.zaxxer.hikari.HikariDataSource;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import ru.minat0.minetail.core.Mage;
 import ru.minat0.minetail.core.utils.Logger;
-import ru.minat0.minetail.core.utils.Helper;
 
 import java.io.File;
 import java.io.IOException;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.UUID;
 
 /**
  * @author Minat0_
@@ -106,123 +104,4 @@ public class DatabaseManager {
 
         return sqlFile;
     }
-
-    public void update(@NotNull Mage mage) {
-        String uuid = mage.getUniqueId().toString();
-
-        String update = "UPDATE minetail_players SET name=?, magicLevel=?, magicRank=?, magicClass=?, manaBarColor=?, manaBarAppearTime=?, Spells=? WHERE uuid=?;";
-        try (PreparedStatement statement = getConnection().prepareStatement(update)) {
-            statement.setString(1, mage.getName());
-            statement.setInt(2, mage.getMagicLevel());
-            statement.setString(3, mage.getRank());
-            statement.setString(4, mage.getMagicClass());
-            statement.setString(5, mage.getManaBarColor());
-            statement.setString(6, mage.getManaBarAppearTime());
-            statement.setString(7, Helper.serialize(mage.getSpells()));
-            statement.setString(8, uuid);
-
-            statement.execute();
-        } catch (SQLException ex) {
-            Logger.error("An error occurred while trying to update the players data!" + ex.getMessage());
-        }
-    }
-
-
-    public void update(@NotNull Set<Mage> mageSet) {
-        String update = "UPDATE minetail_players SET name=?, magicLevel=?, magicRank=?, magicClass=?, manaBarColor=?, manaBarAppearTime=?, Spells=? WHERE uuid=?;";
-        Logger.debug("Mages: " + mageSet.size(), false);
-        for (Mage mage : mageSet) {
-            if (mage.changed) {
-                Logger.debug("Updating player: " + mage.getName(), true);
-                String uuid = mage.getUniqueId().toString();
-                try (PreparedStatement statement = getConnection().prepareStatement(update)) {
-                    statement.setString(1, mage.getName());
-                    statement.setInt(2, mage.getMagicLevel());
-                    statement.setString(3, mage.getRank());
-                    statement.setString(4, mage.getMagicClass());
-                    statement.setString(5, mage.getManaBarColor());
-                    statement.setString(6, mage.getManaBarAppearTime());
-                    statement.setString(7, Helper.serialize(mage.getSpells()));
-                    statement.setString(8, uuid);
-                    statement.execute();
-                } catch (SQLException ex) {
-                    Logger.error("An error occurred while trying to update the set of players data! " + ex.getMessage());
-                }
-            }
-        }
-    }
-
-    public void delete(@NotNull Mage mage) {
-        String uuid = mage.getUniqueId().toString();
-
-        String delete = "DELETE FROM minetail_players WHERE uuid=?";
-        try (PreparedStatement statement = getConnection().prepareStatement(delete)) {
-            statement.setString(1, uuid);
-            statement.execute();
-        } catch (SQLException ex) {
-            Logger.error("An error occurred while trying to delete the players data! " + ex.getMessage());
-        }
-    }
-
-    public void insert(@NotNull Mage mage) {
-        String uuid = mage.getUniqueId().toString();
-
-        String insert = "INSERT INTO minetail_players (uuid, name, magicLevel, magicRank, magicClass, manaBarColor, manaBarAppearTime, Spells) VALUES (?, ?, ?, ?, ?, ?, ?, ?);";
-        try (PreparedStatement statement = getConnection().prepareStatement(insert)) {
-            statement.setString(1, uuid);
-            statement.setString(2, mage.getName());
-            statement.setInt(3, mage.getMagicLevel());
-            statement.setString(4, mage.getRank());
-            statement.setString(5, mage.getMagicClass());
-            statement.setString(6, mage.getManaBarColor());
-            statement.setString(7, mage.getManaBarAppearTime());
-            statement.setString(8, Helper.serialize(mage.getSpells()));
-            statement.execute();
-            mages.add(mage);
-        } catch (SQLException ex) {
-            Logger.error("An error occurred while trying to insert the players data! " + ex.getMessage());
-        }
-    }
-
-    private void loopThroughMages() {
-        String sql = "SELECT * FROM minetail_players;";
-        try (Statement statement = getConnection().createStatement()) {
-            ResultSet rs = statement.executeQuery(sql);
-
-            while (rs.next()) {
-                UUID uuid = UUID.fromString(rs.getString("uuid"));
-                Integer magicLevel = rs.getInt("magicLevel");
-                String rank = rs.getString("magicRank");
-                String magicClass = rs.getString("magicClass");
-                String manaBarColor = rs.getString("manaBarColor");
-                String manaBarAppearTime = rs.getString("manaBarAppearTime");
-                String[] Spells = Helper.unserialize(rs.getString("Spells"));
-
-                Mage mage = new Mage(uuid, magicLevel, rank, magicClass, manaBarColor, manaBarAppearTime, Spells);
-                mages.add(mage);
-            }
-        } catch (SQLException ex) {
-            Logger.error("An error occurred while trying to load the players data! " + ex.getMessage());
-        }
-    }
-
-    @Nullable
-    public Mage getMage(@NotNull UUID uuid) {
-        for (Mage mage : mages) {
-            if (mage.getOfflinePlayer().getUniqueId().equals(uuid)) {
-                return mage;
-            }
-        }
-
-        return null;
-    }
-
-    public Set<Mage> getMages() {
-        return mages;
-    }
-
-    public void loadDataToMemory() {
-        loopThroughMages();
-    }
-
 }

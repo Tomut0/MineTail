@@ -14,7 +14,7 @@ import ru.minat0.minetail.core.conversation.TailConversation;
 import ru.minat0.minetail.core.inventories.RegisterInventory;
 import ru.minat0.minetail.core.managers.DatabaseManager;
 import ru.minat0.minetail.core.managers.ServerManager;
-import ru.minat0.minetail.main.RandomKit;
+import ru.minat0.minetail.auth.RandomKit;
 import ru.minat0.minetail.main.prompts.ConfirmClassChange;
 
 @SuppressWarnings("ALL")
@@ -49,8 +49,8 @@ public class MineTailCommand extends BaseCommand {
         @Description("Перезагрузить базу данных плагина.")
         @Subcommand("database|db")
         public void onDatabase(CommandSender sender) {
-            MineTail.getDatabaseManager().getMages().clear();
-            MineTail.getDatabaseManager().loadDataToMemory();
+            MineTail.getMageDao().getAll().clear();
+            MineTail.getMageDao().loadMages();
             sender.sendMessage(ChatColor.GREEN + "[MineTail] База данных была успешно перезагружена!");
         }
     }
@@ -68,23 +68,20 @@ public class MineTailCommand extends BaseCommand {
         @Description("Сбросить магический класс игрока.")
         @CommandCompletion("@players holding_magic|caster_magic")
         @CommandPermission("minetail.admin.change.class")
-        @Subcommand("class reset|c reset")
+        @Subcommand("class reset")
         public void onAdminClassChange(CommandSender sender, @Name("игрок") OnlinePlayer target) {
-            Mage mage = MineTail.getDatabaseManager().getMage(target.getPlayer().getUniqueId());
+            Mage mage = MineTail.getMageDao().get(target.getPlayer().getUniqueId()).orElse(null);
             if (mage == null) return;
 
             // Delete from DB
-            MineTail.getDatabaseManager().delete(mage);
-
-            // Svae on server restart
-            mage.changed = true;
+            MineTail.getMageDao().delete(mage.getUniqueId());
 
             // Delete Mage from lobby Mages()
             MineTail.getServerManager().sendForwardMage(target.getPlayer(), "lobby", "DatabaseChannel", "MageSetDelete", mage);
             sender.sendMessage(ChatColor.GREEN + "[MineTail] Вы сбросили магический класс игрока " + mage.getName() + "!");
 
             // Delete from Set
-            MineTail.getDatabaseManager().getMages().remove(mage);
+            MineTail.getMageDao().getAll().remove(mage);
             MineTail.getServerManager().teleportToServer(target.getPlayer(), "lobby");
         }
 
@@ -92,14 +89,13 @@ public class MineTailCommand extends BaseCommand {
         @CommandCompletion("white|red|blue|pink|yellow|purple|green")
         @Description("Изменить цвет отображаемой маны.")
         public void onManaBar(Player sender, @Name("цвет") String color) {
-            Mage mage = MineTail.getDatabaseManager().getMage(sender.getUniqueId());
+            Mage mage = MineTail.getMageDao().get(sender.getUniqueId()).orElse(null);
             if (mage == null) return;
 
             for (BarColor barColor : BarColor.values()) {
                 if (barColor.name().equalsIgnoreCase(color)) {
-                    mage.setManaBarColor(barColor.name());
-                    mage.changed = true;
-                    plugin.getManaBars().get(sender.getUniqueId()).setColor(BarColor.valueOf(mage.getManaBarColor()));
+                    mage.getSettings().put(Mage.SETTINGS.MANABARCOLOR.name(), barColor.name());
+                    plugin.getManaBars().get(sender.getUniqueId()).setColor(BarColor.valueOf(mage.getSettings().get(Mage.SETTINGS.MANABARCOLOR.name())));
                     sender.sendMessage(ChatColor.GREEN + "[MineTail] Вы успешно сменили себе цвет маны!");
                 }
             }
@@ -110,14 +106,13 @@ public class MineTailCommand extends BaseCommand {
         @Subcommand("manabar|mb color set")
         @CommandPermission("minetail.admin.change.manabar")
         public void onAdminManaBarChange(CommandSender sender, @Name("игрок") OfflinePlayer target, @Name("цвет") String color) {
-            Mage mage = MineTail.getDatabaseManager().getMage(target.getUniqueId());
+            Mage mage = MineTail.getMageDao().get(target.getUniqueId()).orElse(null);
             if (mage == null) return;
 
             for (BarColor barColor : BarColor.values()) {
                 if (barColor.name().equalsIgnoreCase(color)) {
-                    mage.setManaBarColor(barColor.name());
-                    mage.changed = true;
-                    plugin.getManaBars().get(target.getUniqueId()).setColor(BarColor.valueOf(mage.getManaBarColor()));
+                    mage.getSettings().put(Mage.SETTINGS.MANABARCOLOR.name(), barColor.name());
+                    plugin.getManaBars().get(target.getUniqueId()).setColor(BarColor.valueOf(mage.getSettings().get(Mage.SETTINGS.MANABARCOLOR.name())));
                     sender.sendMessage(ChatColor.GREEN + "[MineTail] Вы успешно изменили цвет маны игрока " + mage.getName() + "!");
                 }
             }
@@ -128,11 +123,10 @@ public class MineTailCommand extends BaseCommand {
         @Subcommand("level|lvl set")
         @CommandPermission("minetail.admin.level")
         public void onAdminLevelChange(CommandSender sender, @Name("игрок") OfflinePlayer target, @Name("уровень") Integer level) {
-            Mage mage = MineTail.getDatabaseManager().getMage(target.getUniqueId());
+            Mage mage = MineTail.getMageDao().get(target.getUniqueId()).orElse(null);
             if (mage == null) return;
 
-            mage.setMagicLevel(level);
-            mage.changed = true;
+            mage.setMagicLVL(level);
             sender.sendMessage(ChatColor.GREEN + "[MineTail] Вы успешно изменили магический уровень игрока " + target.getName() + "!");
         }
 
@@ -140,13 +134,12 @@ public class MineTailCommand extends BaseCommand {
         @CommandCompletion("forever|short|medium|long")
         @Subcommand("manabar|mb appeartime|at set")
         public void onPlayerManaBarAppearTime(Player sender, @Name("время") String time) {
-            Mage mage = MineTail.getDatabaseManager().getMage(sender.getUniqueId());
+            Mage mage = MineTail.getMageDao().get(sender.getUniqueId()).orElse(null);
             if (mage == null) return;
 
-            for (ManaBar appearTime : ManaBar.values()) {
+            for (Mage.manaBarTime appearTime : Mage.manaBarTime.values()) {
                 if (appearTime.name().equalsIgnoreCase(time)) {
-                    mage.setManaBarAppearTime(appearTime.name());
-                    mage.changed = true;
+                    mage.getSettings().put(Mage.SETTINGS.MANABARTIME.name(), appearTime.name());
                     sender.sendMessage(ChatColor.GREEN + "[MineTail] Вы изменили время отображения маны!");
                 }
             }

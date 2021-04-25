@@ -39,7 +39,6 @@ magicLevel: 1
 # BossBar on spell disappear time (in seconds)
 # Set it on 0 or -1 to disable disappear
 disappearTime: 3
-bossBarDefaultColor: PINK
 
 Conversations:
   ChangeClass:
@@ -48,7 +47,7 @@ Conversations:
     - "Сбросив класс на 20 уровне, вы повышаете шанс выбить более лучший набор."
     - "Требования:"
     - "- 10 уровень"
-    - "- 2500000 драгоценностей"
+    - "- 500000 драгоценностей"
     - "Введите в чат: Да / Нет"
 
 # GUIs (works only on Auth server)
