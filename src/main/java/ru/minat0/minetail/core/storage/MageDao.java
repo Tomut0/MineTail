@@ -34,7 +34,7 @@ public class MageDao extends SQLDao implements Dao<Mage, UUID> {
         Gson gson = new Gson();
 
         String query = "INSERT INTO minetail_players (uuid, name, magicLevel, magicEXP, magicRank, magicClass, settings, Spells) VALUES (?, ?, ?, ?, ?, ?, ?, ?);";
-        try (Connection connection = getConnection(); PreparedStatement statement = connection.prepareStatement(query)) {
+        try (PreparedStatement statement = getConnection().prepareStatement(query)) {
             statement.setString(1, uuid);
             statement.setString(2, mage.getName());
             statement.setInt(3, mage.getMagicLVL());
@@ -57,7 +57,7 @@ public class MageDao extends SQLDao implements Dao<Mage, UUID> {
             String query = "UPDATE minetail_players SET name=?, magicLevel=?, magicEXP=?, magicRank=?, magicClass=?, settings=?, Spells=? WHERE uuid=?;";
             Mage mage = get(uuid).get();
             Gson gson = new Gson();
-            try (Connection connection = getConnection(); PreparedStatement statement = connection.prepareStatement(query)) {
+            try (PreparedStatement statement = getConnection().prepareStatement(query)) {
                 statement.setString(1, mage.getName());
                 statement.setInt(2, mage.getMagicLVL());
                 statement.setInt(3, mage.getMagicEXP());
@@ -78,7 +78,7 @@ public class MageDao extends SQLDao implements Dao<Mage, UUID> {
         for (Mage mage : getAll()) {
             String query = "UPDATE minetail_players SET name=?, magicLevel=?, magicEXP=?, magicRank=?, magicClass=?, settings=?, Spells=? WHERE uuid=?;";
             Gson gson = new Gson();
-            try (Connection connection = getConnection(); PreparedStatement statement = connection.prepareStatement(query)) {
+            try (PreparedStatement statement = getConnection().prepareStatement(query)) {
                 statement.setString(1, mage.getName());
                 statement.setInt(2, mage.getMagicLVL());
                 statement.setInt(3, mage.getMagicEXP());
@@ -99,7 +99,7 @@ public class MageDao extends SQLDao implements Dao<Mage, UUID> {
     public void delete(@NotNull UUID uuid) {
         String query = "DELETE FROM minetail_players WHERE uuid=?";
 
-        try (Connection connection = getConnection(); PreparedStatement statement = connection.prepareStatement(query)) {
+        try (PreparedStatement statement = getConnection().prepareStatement(query)) {
             statement.setString(1, uuid.toString());
             statement.execute();
         } catch (SQLException ex) {
@@ -110,7 +110,7 @@ public class MageDao extends SQLDao implements Dao<Mage, UUID> {
     public void loadMages() {
         String query = "SELECT * FROM minetail_players;";
 
-        try (Connection connection = getConnection(); Statement statement = connection.createStatement()) {
+        try (Statement statement = getConnection().createStatement()) {
             ResultSet rs = statement.executeQuery(query);
 
             while (rs.next()) {
