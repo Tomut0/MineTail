@@ -22,6 +22,7 @@ import java.util.Set;
 public class DatabaseManager {
     private final JavaPlugin plugin;
     private final FileConfiguration config;
+
     private HikariDataSource dataSource;
 
     private final Set<Mage> mages = new HashSet<>();
@@ -43,11 +44,10 @@ public class DatabaseManager {
                     + "(uuid varchar(36) NOT NULL,"
                     + "name varchar(16) NOT NULL,"
                     + "magicLevel int NOT NULL,"
-                    + "experience int DEFAULT 0 NOT NULL,"
+                    + "magicEXP int DEFAULT 0 NOT NULL,"
                     + "magicRank varchar(255) NULL,"
-                    + "magicClass varchar(16) NULL,"
-                    + "manaBarColor varchar(16) NOT NULL,"
-                    + "manaBarAppearTime varchar(16) NOT NULL,"
+                    + "magicClass varchar(16) NOT NULL,"
+                    + "settings JSON NOT NULL,"
                     + "Spells varchar(255) NOT NULL,"
                     + "PRIMARY KEY ( uuid ));"
             );
@@ -87,6 +87,10 @@ public class DatabaseManager {
 
     public Connection getConnection() throws SQLException {
         return dataSource.getConnection();
+    }
+
+    public HikariDataSource getDataSource() {
+        return dataSource;
     }
 
     @SuppressWarnings("ResultOfMethodCallIgnored")

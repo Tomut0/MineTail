@@ -1,6 +1,7 @@
 package ru.minat0.minetail.main.prompts;
 
 import com.Zrips.CMI.Modules.Economy.Economy;
+import com.nisovin.magicspells.MagicSpells;
 import me.clip.placeholderapi.PlaceholderAPI;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
@@ -54,6 +55,9 @@ public class ConfirmClassChange extends StringPrompt {
                     Economy.withdrawPlayer(offlinePlayer, PRICE);
                     mage.setMagicLVL(1);
                     mage.setSpells(null);
+                    MagicSpells.getSpellbook(player).removeAllSpells();
+                    MagicSpells.getSpellbook(player).save();
+                    MagicSpells.getManaHandler().setMaxMana(player, 100);
                     MineTail.getServerManager().sendForwardMage(player, "lobby", "DatabaseChannel", "MageSetDelete", mage);
                     MineTail.getMageDao().getAll().remove(mage);
                     MineTail.getServerManager().teleportToServer(player, "lobby");

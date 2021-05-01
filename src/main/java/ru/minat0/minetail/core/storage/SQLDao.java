@@ -1,15 +1,17 @@
 package ru.minat0.minetail.core.storage;
 
+import javax.sql.DataSource;
 import java.sql.Connection;
+import java.sql.SQLException;
 
 public class SQLDao {
-    private final Connection connection;
+    private final DataSource dataSource;
 
-    public SQLDao(Connection connection) {
-        this.connection = connection;
+    public SQLDao(DataSource dataSource) {
+        this.dataSource = dataSource;
     }
 
-    public Connection getConnection() {
-        return connection;
+    public Connection getConnection() throws SQLException {
+        return dataSource.getConnection();
     }
 }

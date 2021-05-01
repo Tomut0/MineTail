@@ -1,20 +1,19 @@
 package ru.minat0.minetail.core;
 
 import co.aikar.commands.PaperCommandManager;
-import com.sk89q.jnbt.CompoundTagBuilder;
 import org.bukkit.Bukkit;
 import org.bukkit.boss.BossBar;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.reflections.Reflections;
 import ru.minat0.minetail.auth.AuthMeLoginEvent;
+import ru.minat0.minetail.auth.RandomKit;
 import ru.minat0.minetail.core.managers.ConfigManager;
 import ru.minat0.minetail.core.managers.DatabaseManager;
 import ru.minat0.minetail.core.managers.ServerManager;
 import ru.minat0.minetail.core.storage.MageDao;
 import ru.minat0.minetail.core.utils.Logger;
 import ru.minat0.minetail.core.worldguard.Flags;
-import ru.minat0.minetail.auth.RandomKit;
 
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -60,12 +59,8 @@ public class MineTail extends JavaPlugin {
         registerDependencies();
         commandManager.registerCommand(new MineTailCommand(instance), true);
 
-        try {
-            mageDao = new MageDao(databaseManager.getConnection());
-            mageDao.loadMages();
-        } catch (SQLException exception) {
-            exception.printStackTrace();
-        }
+        mageDao = new MageDao(databaseManager.getDataSource());
+        mageDao.loadMages();
 
         RandomKit.loadKits();
         levelSetup();
@@ -73,7 +68,8 @@ public class MineTail extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        mageDao.updateAll();
+        if (!serverManager.isAuthServer())
+            mageDao.updateAll();
     }
 
     private void registerManagers() {

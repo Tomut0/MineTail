@@ -28,6 +28,7 @@ import java.util.Optional;
 import java.util.Set;
 
 public class MagicSpellsCast implements Listener {
+    ManaHandler manaHandler = MagicSpells.getManaHandler();
 
     private final Map<Player, Integer> remainingTimer = new HashMap<>();
 
@@ -69,7 +70,6 @@ public class MagicSpellsCast implements Listener {
         }
 
         if (!remainingTimer.containsKey(player)) {
-            ManaHandler manaHandler = MagicSpells.getManaHandler();
             BossBar manaBar = MineTail.getInstance().getManaBars().get(player.getUniqueId());
 
             if (manaBar == null) return;
@@ -97,10 +97,10 @@ public class MagicSpellsCast implements Listener {
     @EventHandler
     public void onTarget(SpellTargetEvent event) {
         Optional<Mage> optionalMage = MineTail.getMageDao().get(event.getCaster().getUniqueId());
-
         if (optionalMage.isPresent()) {
             FileConfiguration config = MineTail.getConfiguration().getConfig();
             Mage mage = optionalMage.get();
+            Player onlinePlayer = mage.getOnlinePlayer();
 
             if (mage.getMagicLVL() < config.getInt("maxLevel")) {
                 int spellExp = config.getInt("spellsExp." + event.getSpell().getName(), 10);
@@ -109,6 +109,8 @@ public class MagicSpellsCast implements Listener {
                 if (mage.getMagicEXP() >= MineTail.levelMap.get(mage.getMagicLVL())) {
                     mage.setMagicEXP(0);
                     mage.setMagicLVL(mage.getMagicLVL() + 1);
+                    int maxMana = manaHandler.getMaxMana(onlinePlayer);
+                    manaHandler.setMaxMana(onlinePlayer, (int) (maxMana * 1.1));
                 }
 
                 Audience.audience(event.getCaster()).sendActionBar(Component.text("Ваш опыт: " + mage.getMagicEXP()));

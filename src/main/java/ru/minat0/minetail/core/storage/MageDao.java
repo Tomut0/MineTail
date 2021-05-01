@@ -7,6 +7,7 @@ import org.jetbrains.annotations.NotNull;
 import ru.minat0.minetail.core.Mage;
 import ru.minat0.minetail.core.utils.Logger;
 
+import javax.sql.DataSource;
 import java.lang.reflect.Type;
 import java.sql.*;
 import java.util.*;
@@ -14,8 +15,8 @@ import java.util.*;
 public class MageDao extends SQLDao implements Dao<Mage, UUID> {
     private final Set<Mage> mages = new HashSet<>();
 
-    public MageDao(Connection connection) {
-        super(connection);
+    public MageDao(DataSource dataSource) {
+        super(dataSource);
     }
 
     @Override
@@ -34,7 +35,7 @@ public class MageDao extends SQLDao implements Dao<Mage, UUID> {
         Gson gson = new Gson();
 
         String query = "INSERT INTO minetail_players (uuid, name, magicLevel, magicEXP, magicRank, magicClass, settings, Spells) VALUES (?, ?, ?, ?, ?, ?, ?, ?);";
-        try (PreparedStatement statement = getConnection().prepareStatement(query)) {
+        try (Connection connection = getConnection(); PreparedStatement statement = connection.prepareStatement(query)) {
             statement.setString(1, uuid);
             statement.setString(2, mage.getName());
             statement.setInt(3, mage.getMagicLVL());
@@ -57,7 +58,7 @@ public class MageDao extends SQLDao implements Dao<Mage, UUID> {
             String query = "UPDATE minetail_players SET name=?, magicLevel=?, magicEXP=?, magicRank=?, magicClass=?, settings=?, Spells=? WHERE uuid=?;";
             Mage mage = get(uuid).get();
             Gson gson = new Gson();
-            try (PreparedStatement statement = getConnection().prepareStatement(query)) {
+            try (Connection connection = getConnection(); PreparedStatement statement = connection.prepareStatement(query)) {
                 statement.setString(1, mage.getName());
                 statement.setInt(2, mage.getMagicLVL());
                 statement.setInt(3, mage.getMagicEXP());
@@ -78,7 +79,7 @@ public class MageDao extends SQLDao implements Dao<Mage, UUID> {
         for (Mage mage : getAll()) {
             String query = "UPDATE minetail_players SET name=?, magicLevel=?, magicEXP=?, magicRank=?, magicClass=?, settings=?, Spells=? WHERE uuid=?;";
             Gson gson = new Gson();
-            try (PreparedStatement statement = getConnection().prepareStatement(query)) {
+            try (Connection connection = getConnection(); PreparedStatement statement = connection.prepareStatement(query)) {
                 statement.setString(1, mage.getName());
                 statement.setInt(2, mage.getMagicLVL());
                 statement.setInt(3, mage.getMagicEXP());
@@ -99,7 +100,7 @@ public class MageDao extends SQLDao implements Dao<Mage, UUID> {
     public void delete(@NotNull UUID uuid) {
         String query = "DELETE FROM minetail_players WHERE uuid=?";
 
-        try (PreparedStatement statement = getConnection().prepareStatement(query)) {
+        try (Connection connection = getConnection(); PreparedStatement statement = connection.prepareStatement(query)) {
             statement.setString(1, uuid.toString());
             statement.execute();
         } catch (SQLException ex) {
@@ -110,7 +111,7 @@ public class MageDao extends SQLDao implements Dao<Mage, UUID> {
     public void loadMages() {
         String query = "SELECT * FROM minetail_players;";
 
-        try (Statement statement = getConnection().createStatement()) {
+        try (Connection connection = getConnection(); Statement statement = connection.createStatement()) {
             ResultSet rs = statement.executeQuery(query);
 
             while (rs.next()) {

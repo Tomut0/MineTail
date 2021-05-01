@@ -10,6 +10,7 @@ import ru.minat0.minetail.core.utils.Logger;
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
+import java.util.Optional;
 
 @SuppressWarnings("UnstableApiUsage")
 public class PluginMessage implements PluginMessageListener {
@@ -45,9 +46,8 @@ public class PluginMessage implements PluginMessageListener {
                         } else Logger.debug("There is no deserialized mage: " + player.getName(), false);
                         break;
                     case "MageSetDelete":
-                        if (MineTail.getMageDao().get(player.getUniqueId()).isPresent()) {
-                            MineTail.getMageDao().getAll().remove(Mage.deserialize(msgin.readAllBytes()));
-                        }
+                        Optional<Mage> mageOptional = MineTail.getMageDao().get(player.getUniqueId());
+                        mageOptional.ifPresent(mageDeleted -> Logger.debug(MineTail.getMageDao().getAll().remove(mageDeleted) + "", false));
                         break;
                 }
             } catch (IOException e) {
