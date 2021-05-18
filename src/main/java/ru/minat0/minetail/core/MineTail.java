@@ -12,10 +12,10 @@ import ru.minat0.minetail.core.managers.ConfigManager;
 import ru.minat0.minetail.core.managers.DatabaseManager;
 import ru.minat0.minetail.core.managers.ServerManager;
 import ru.minat0.minetail.core.storage.MageDao;
+import ru.minat0.minetail.core.tasks.SaveMageDaoTask;
 import ru.minat0.minetail.core.utils.Logger;
 import ru.minat0.minetail.core.worldguard.Flags;
 
-import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -62,14 +62,23 @@ public class MineTail extends JavaPlugin {
         mageDao = new MageDao(databaseManager.getDataSource());
         mageDao.loadMages();
 
+        runTasks();
         RandomKit.loadKits();
         levelSetup();
     }
 
+    private void runTasks() {
+        if (!serverManager.isAuthServer()) {
+            new SaveMageDaoTask(this);
+        }
+    }
+
     @Override
     public void onDisable() {
-        if (!serverManager.isAuthServer())
+        if (!serverManager.isAuthServer()) {
             mageDao.updateAll();
+            Bukkit.getScheduler().cancelTasks(this);
+        }
     }
 
     private void registerManagers() {
