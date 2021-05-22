@@ -1,9 +1,7 @@
 package ru.minat0.minetail.core.worldguard;
 
 import com.sk89q.worldguard.WorldGuard;
-import com.sk89q.worldguard.protection.flags.Flag;
-import com.sk89q.worldguard.protection.flags.SetFlag;
-import com.sk89q.worldguard.protection.flags.StateFlag;
+import com.sk89q.worldguard.protection.flags.*;
 import com.sk89q.worldguard.protection.flags.registry.FlagConflictException;
 
 import java.util.ArrayList;
@@ -13,6 +11,7 @@ import java.util.function.Consumer;
 public class Flags {
     private static final List<String> INBUILT_FLAGS_LIST = new ArrayList<>();
 
+    public static LocationFlag CUSTOM_RESPAWN;
     public static SetFlag<String> SPELL_BLACKLIST;
     public static SetFlag<String> SPELL_WHITELIST;
     public static StateFlag SPELL_USAGE;
@@ -33,6 +32,7 @@ public class Flags {
     }
 
     public static void registerAll() {
+        CUSTOM_RESPAWN = register(new LocationFlag("custom-respawn", RegionGroup.ALL));
         SPELL_BLACKLIST = register(new SetFlag<>("spell-blacklist", new SpellsStringFlag(null)));
         SPELL_WHITELIST = register(new SetFlag<>("spell-whitelist", new SpellsStringFlag(null)));
         SPELL_USAGE = register(new StateFlag("spell-usage", true));

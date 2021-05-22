@@ -128,10 +128,6 @@ public class MineTail extends JavaPlugin {
         return serverManager;
     }
 
-    public static DatabaseManager getDatabaseManager() {
-        return databaseManager;
-    }
-
     public static ConfigManager getConfiguration() {
         return configManager;
     }
